@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Rutas entre Ciudades</title>
+    <link rel="stylesheet" href="css/estilos.css" />
+</head>
+<body>
+
+<header>
+    <h1>Sistema de Rutas entre Ciudades</h1>
+    <span>Motor logico: SWI-Prolog</span>
+</header>
+
+<nav>
+    <button class="activo" data-pestana="tab-ruta-corta">Ruta Optima</button>
+    <button data-pestana="tab-todas-rutas">Todas las Rutas</button>
+    <button data-pestana="tab-admin">Administrar</button>
+</nav>
+
+<main>
+
+    <!-- ============================================================
+         PESTANA 1: Ruta mas corta
+    ============================================================ -->
+    <section id="tab-ruta-corta" class="pestana activo">
+        <div class="tarjeta">
+            <h2>Calcular Ruta Optima</h2>
+            <div class="formulario-grupo">
+                <div class="campo">
+                    <label for="origen-corta">Ciudad de Origen</label>
+                    <select id="origen-corta" class="selector-ciudad">
+                        <option value="">-- Seleccionar ciudad --</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="destino-corta">Ciudad de Destino</label>
+                    <select id="destino-corta" class="selector-ciudad">
+                        <option value="">-- Seleccionar ciudad --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="acciones-formulario">
+                <button id="btn-ruta-corta" class="boton-primario">Buscar Ruta Optima</button>
+                <button id="btn-limpiar-corta" class="boton-secundario">Limpiar</button>
+            </div>
+        </div>
+
+        <div class="tarjeta">
+            <h2>Resultado</h2>
+            <div id="resultado-ruta-corta" class="resultado-contenedor">
+                <p class="resultado-vacio">Seleccione origen y destino para calcular la ruta.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         PESTANA 2: Todas las rutas
+    ============================================================ -->
+    <section id="tab-todas-rutas" class="pestana">
+        <div class="tarjeta">
+            <h2>Buscar Todas las Rutas</h2>
+            <div class="formulario-grupo">
+                <div class="campo">
+                    <label for="origen-todas">Ciudad de Origen</label>
+                    <select id="origen-todas" class="selector-ciudad">
+                        <option value="">-- Seleccionar ciudad --</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="destino-todas">Ciudad de Destino</label>
+                    <select id="destino-todas" class="selector-ciudad">
+                        <option value="">-- Seleccionar ciudad --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="acciones-formulario">
+                <button id="btn-todas-rutas" class="boton-primario">Obtener Todas las Rutas</button>
+                <button id="btn-limpiar-todas" class="boton-secundario">Limpiar</button>
+            </div>
+        </div>
+
+        <div class="tarjeta">
+            <h2>Rutas Disponibles</h2>
+            <div id="resultado-todas-rutas" class="resultado-contenedor">
+                <p class="resultado-vacio">Seleccione origen y destino para ver todas las rutas disponibles.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         PESTANA 3: Administrar
+    ============================================================ -->
+    <section id="tab-admin" class="pestana">
+
+        <!-- Agregar conexion -->
+        <div class="tarjeta">
+            <h2>Agregar Nueva Conexion</h2>
+            <p style="font-size:0.85rem; color:#64748b; margin-bottom:1rem;">
+                Puede ingresar ciudades nuevas o existentes. Los nombres de ciudad se normalizan automaticamente (minusculas, espacios por guion bajo).
+            </p>
+            <div class="formulario-grupo">
+                <div class="campo">
+                    <label for="nueva-ciudad1">Ciudad 1</label>
+                    <input type="text" id="nueva-ciudad1" placeholder="Ejemplo: Retalhuleu" />
+                </div>
+                <div class="campo">
+                    <label for="nueva-ciudad2">Ciudad 2</label>
+                    <input type="text" id="nueva-ciudad2" placeholder="Ejemplo: San Marcos" />
+                </div>
+            </div>
+            <div class="campo" style="max-width:200px; margin-bottom:1rem;">
+                <label for="nueva-distancia">Distancia (km)</label>
+                <input type="number" id="nueva-distancia" min="1" placeholder="Ejemplo: 45" />
+            </div>
+            <div class="acciones-formulario">
+                <button id="btn-agregar-conexion" class="boton-primario">Agregar Conexion</button>
+            </div>
+            <div id="msg-conexion"></div>
+        </div>
+
+        <!-- Lista de ciudades -->
+        <div class="tarjeta">
+            <h2>
+                Ciudades Registradas
+                <span id="total-ciudades" style="font-size:0.85rem; color:#64748b; font-weight:400; margin-left:0.5rem;"></span>
+            </h2>
+            <div id="lista-ciudades-panel">
+                <p class="resultado-vacio">Abra esta pestana para cargar las ciudades.</p>
+            </div>
+        </div>
+
+        <!-- Tabla de conexiones -->
+        <div class="tarjeta">
+            <h2>
+                Conexiones Registradas
+                <span id="total-conexiones" style="font-size:0.85rem; color:#64748b; font-weight:400; margin-left:0.5rem;"></span>
+            </h2>
+            <div id="tabla-conexiones-panel">
+                <p class="resultado-vacio">Abra esta pestana para cargar las conexiones.</p>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+<script src="js/app.js"></script>
+</body>
+</html>

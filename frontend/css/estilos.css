@@ -1,0 +1,393 @@
+/* Estilos generales */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    min-height: 100vh;
+}
+
+/* Encabezado */
+header {
+    background: #16213e;
+    color: #e2e8f0;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+header h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+header span {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+/* Navegacion de pestanas */
+nav {
+    background: #0f3460;
+    display: flex;
+    gap: 2px;
+    padding: 0 2rem;
+}
+
+nav button {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+nav button:hover {
+    color: #e2e8f0;
+}
+
+nav button.activo {
+    color: #38bdf8;
+    border-bottom-color: #38bdf8;
+    font-weight: 600;
+}
+
+/* Contenedor principal */
+main {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Pestanas */
+.pestana {
+    display: none;
+}
+
+.pestana.activo {
+    display: block;
+}
+
+/* Tarjeta */
+.tarjeta {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.tarjeta h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f3460;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Formulario */
+.formulario-grupo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.campo label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #475569;
+}
+
+.campo select,
+.campo input[type="text"],
+.campo input[type="number"] {
+    padding: 0.55rem 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #1a1a2e;
+    transition: border-color 0.2s;
+}
+
+.campo select:focus,
+.campo input:focus {
+    outline: none;
+    border-color: #38bdf8;
+}
+
+/* Botones */
+.boton-primario {
+    background: #0f3460;
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.boton-primario:hover {
+    background: #16213e;
+}
+
+.boton-primario:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+}
+
+.boton-secundario {
+    background: #e2e8f0;
+    color: #475569;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.boton-secundario:hover {
+    background: #cbd5e1;
+}
+
+/* Resultados */
+.resultado-contenedor {
+    margin-top: 1rem;
+}
+
+.resultado-vacio {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Resultado ruta mas corta */
+.ruta-optima {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    padding: 1.25rem;
+}
+
+.ruta-optima .distancia-badge {
+    display: inline-block;
+    background: #16a34a;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    margin-bottom: 0.75rem;
+}
+
+.ruta-ciudades {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+}
+
+.ruta-ciudades .ciudad-chip {
+    background: #0f3460;
+    color: #e2e8f0;
+    padding: 0.25rem 0.65rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.ruta-ciudades .flecha {
+    color: #94a3b8;
+    font-weight: 700;
+}
+
+/* Tabla de rutas */
+.tabla-rutas {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.tabla-rutas thead tr {
+    background: #0f3460;
+    color: #e2e8f0;
+}
+
+.tabla-rutas thead th {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+.tabla-rutas tbody tr {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.tabla-rutas tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+.tabla-rutas tbody tr:first-child {
+    background: #f0fdf4;
+}
+
+.tabla-rutas tbody td {
+    padding: 0.55rem 0.75rem;
+}
+
+.badge-mejor {
+    background: #16a34a;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 10px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+}
+
+/* Lista de ciudades */
+.lista-ciudades {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.ciudad-tag {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Tabla conexiones */
+.tabla-conexiones {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.tabla-conexiones thead tr {
+    background: #0f3460;
+    color: #e2e8f0;
+}
+
+.tabla-conexiones thead th {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+}
+
+.tabla-conexiones tbody tr {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.tabla-conexiones tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+.tabla-conexiones tbody td {
+    padding: 0.5rem 0.75rem;
+}
+
+/* Mensajes de estado */
+.mensaje-error {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #b91c1c;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    margin-top: 0.75rem;
+}
+
+.mensaje-exito {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    color: #15803d;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    margin-top: 0.75rem;
+}
+
+.cargando {
+    color: #38bdf8;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Acciones de formulario */
+.acciones-formulario {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Estadisticas */
+.estadisticas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.stat-card .stat-valor {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0f3460;
+}
+
+.stat-card .stat-etiqueta {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+}
+
+@media (max-width: 600px) {
+    .formulario-grupo {
+        grid-template-columns: 1fr;
+    }
+    .estadisticas-grid {
+        grid-template-columns: 1fr;
+    }
+    nav button {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}

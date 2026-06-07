@@ -1,0 +1,36 @@
+
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.pytest_cache/
+
+# Entornos / IDE
+.vscode/
+.idea/
+.env
+*.sublime-project
+*.sublime-workspace
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# Archivos de contexto
+.claude/
+CLAUDE.md
+.claude.md
+*.claude.md
+
+# Enunciado de la practica
+Practica_1_IA1_Junio_2026.md
