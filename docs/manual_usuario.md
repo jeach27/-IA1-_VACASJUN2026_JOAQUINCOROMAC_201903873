@@ -27,11 +27,11 @@ Practica 1 - Inteligencia Artificial 1
 | Componente | Version minima |
 |---|---|
 | Python | 3.11 o superior |
-| SWI-Prolog | 9.x (64 bits) |
+| SWI-Prolog | 9.x o 10.x (64 bits) |
 | Navegador web | Chrome, Firefox, Edge (actualizado) |
 | Sistema operativo | Windows 10/11, Linux, macOS |
 
-> **Importante:** SWI-Prolog debe instalarse antes de instalar PySwip. Descarga SWI-Prolog desde [https://www.swi-prolog.org/Download.html](https://www.swi-prolog.org/Download.html)
+> **Importante:** SWI-Prolog debe instalarse antes de instalar PySwip. Descarga SWI-Prolog desde [https://www.swi-prolog.org/Download.html](https://www.swi-prolog.org/Download.html). En Windows, marca la opcion "Add SWI-Prolog to PATH" durante la instalacion.
 
 ---
 
@@ -87,8 +87,10 @@ pip install -r requirements.txt
 Con el entorno virtual activado y dentro de la carpeta `backend`:
 
 ```
-uvicorn main:app --reload
+python -m uvicorn main:app --reload
 ```
+
+> En Windows, usa siempre `python -m uvicorn` para garantizar que se usa el uvicorn del entorno activo.
 
 El servidor se iniciara en: `http://localhost:8000`
 
@@ -214,10 +216,10 @@ El sistema incluye de base las siguientes ciudades de Guatemala:
 ## 7. Preguntas frecuentes
 
 **La aplicacion no carga las ciudades al abrir el frontend.**
-Verifica que el backend este activo ejecutando `uvicorn main:app --reload` dentro de la carpeta `backend`.
+Verifica que el backend este activo ejecutando `python -m uvicorn main:app --reload` dentro de la carpeta `backend`.
 
 **Instale SWI-Prolog pero PySwip no lo encuentra.**
-En Windows, verifica que la variable de entorno `PATH` incluya la ruta de SWI-Prolog (usualmente `C:\Program Files\swipl\bin`). Reinicia la terminal despues de instalar.
+El sistema detecta automaticamente SWI-Prolog si el ejecutable `swipl` esta en el PATH. Verifica ejecutando `swipl --version` en la terminal. Si no responde, reinstala SWI-Prolog marcando "Add SWI-Prolog to PATH" y reinicia la terminal.
 
 **Quiero agregar muchas ciudades a la vez.**
 Actualmente se agregan de una en una desde la interfaz. Tambien puedes editar directamente el archivo `prolog/ciudades.pl` y agregar hechos `conexion/3` antes de iniciar el backend.

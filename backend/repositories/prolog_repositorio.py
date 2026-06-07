@@ -4,8 +4,25 @@ mediante PySwip. No contiene logica de negocio; solo ejecuta consultas.
 """
 
 import os
+import shutil
 from typing import List, Tuple, Optional
-from pyswip import Prolog
+
+# PySwip busca SWI-Prolog en el registro de Windows o en rutas predefinidas.
+# Si SWI-Prolog esta instalado en una ruta personalizada, auto-detectamos
+# el directorio home a partir del ejecutable encontrado en el PATH.
+if not os.environ.get("SWI_HOME_DIR") and not os.environ.get("SWIPL"):
+    _swipl_exe = shutil.which("swipl")
+    if _swipl_exe:
+        os.environ["SWI_HOME_DIR"] = os.path.dirname(os.path.dirname(_swipl_exe))
+
+try:
+    from pyswip import Prolog
+except (IndexError, OSError) as exc:
+    raise RuntimeError(
+        "PySwip no pudo localizar SWI-Prolog. "
+        "Asegurate de que SWI-Prolog este instalado y disponible en el PATH. "
+        "Descargalo desde https://www.swi-prolog.org/Download.html"
+    ) from exc
 
 
 # Ruta absoluta al archivo .pl para que funcione desde cualquier directorio
@@ -37,17 +54,8 @@ class PrologRepositorio:
         return [str(c) for c in resultados[0]["Ciudades"]]
 
     def obtener_conexiones(self) -> List[Tuple[str, str, int]]:
-        resultados = list(self._prolog.query("todas_conexiones(Conexiones)"))
-        if not resultados:
-            return []
-        conexiones = []
-        for item in resultados[0]["Conexiones"]:
-            # item tiene la forma ciudad1-ciudad2-distancia en Prolog
-            origen = str(item.args[0].args[0])
-            destino = str(item.args[0].args[1])
-            distancia = int(item.args[1])
-            conexiones.append((origen, destino, distancia))
-        return conexiones
+        resultados = list(self._prolog.query("conexion(Origen, Destino, Distancia)"))
+        return [(str(r["Origen"]), str(r["Destino"]), int(r["Distancia"])) for r in resultados]
 
     def ciudad_existe(self, ciudad: str) -> bool:
         consulta = f"ciudad_existe({ciudad})"
@@ -67,17 +75,10 @@ class PrologRepositorio:
     def obtener_todas_rutas(
         self, origen: str, destino: str
     ) -> List[Tuple[List[str], int]]:
-        consulta = f"todas_las_rutas({origen}, {destino}, Rutas)"
+        consulta = f"ruta({origen}, {destino}, Ruta, Distancia)"
         resultados = list(self._prolog.query(consulta))
-        if not resultados:
-            return []
-        rutas = []
-        for item in resultados[0]["Rutas"]:
-            # Cada item tiene la forma Distancia-ListaCiudades
-            distancia = int(item.args[0])
-            ciudades = [str(c) for c in item.args[1]]
-            rutas.append((ciudades, distancia))
-        return rutas
+        rutas = [([str(c) for c in r["Ruta"]], int(r["Distancia"])) for r in resultados]
+        return sorted(rutas, key=lambda x: x[1])
 
     # ------------------------------------------------------------------
     # Operaciones de escritura

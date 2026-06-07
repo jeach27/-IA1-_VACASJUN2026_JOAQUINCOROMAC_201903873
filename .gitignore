@@ -26,7 +26,7 @@ Thumbs.db
 desktop.ini
 
 
-# Archivos de contexto
+# Archivos de contexto del agente (Claude Code)
 .claude/
 CLAUDE.md
 .claude.md

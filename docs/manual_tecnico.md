@@ -182,10 +182,10 @@ Es la unica clase que instancia `pyswip.Prolog`. Carga el archivo `.pl` una sola
 | Metodo | Consulta Prolog |
 |---|---|
 | `obtener_ciudades()` | `todas_ciudades(Ciudades)` |
-| `obtener_conexiones()` | `todas_conexiones(Conexiones)` |
+| `obtener_conexiones()` | `conexion(Origen, Destino, Distancia)` |
 | `ciudad_existe(c)` | `ciudad_existe(c)` |
 | `obtener_ruta_mas_corta(o, d)` | `ruta_mas_corta(o, d, Ruta, Distancia)` |
-| `obtener_todas_rutas(o, d)` | `todas_las_rutas(o, d, Rutas)` |
+| `obtener_todas_rutas(o, d)` | `ruta(o, d, Ruta, Distancia)` (backtracking) |
 | `agregar_conexion(c1, c2, dist)` | `agregar_conexion(c1, c2, dist)` |
 
 ### 4.3. Capa de servicio (services/ruta_servicio.py)
@@ -216,7 +216,20 @@ El repositorio y el servicio se crean una sola vez al iniciar la aplicacion (pat
 
 ## 5. Integracion Python-Prolog
 
-La libreria **PySwip** carga la DLL de SWI-Prolog en el proceso Python y permite ejecutar consultas Prolog directamente desde Python.
+La libreria **PySwip 0.3.x** carga la DLL de SWI-Prolog en el proceso Python y permite ejecutar consultas Prolog directamente desde Python. Se usa con SWI-Prolog 10.x.
+
+**Deteccion automatica de SWI-Prolog:**
+
+PySwip busca SWI-Prolog en el registro de Windows. Si esta instalado en una ruta personalizada, el repositorio lo detecta automaticamente usando `shutil.which`:
+
+```python
+import shutil, os
+swipl_exe = shutil.which("swipl")
+if swipl_exe:
+    os.environ["SWI_HOME_DIR"] = os.path.dirname(os.path.dirname(swipl_exe))
+```
+
+Esta deteccion debe realizarse **antes** de importar PySwip, ya que la libreria busca la DLL al momento de la importacion.
 
 **Flujo de una consulta:**
 
@@ -227,17 +240,23 @@ prolog = Prolog()
 prolog.consult("prolog/ciudades.pl")  # Carga el archivo .pl
 
 resultados = list(prolog.query("ruta_mas_corta(guatemala, flores, Ruta, Distancia)"))
-# resultados = [{"Ruta": [...], "Distancia": 503}]
+# resultados = [{"Ruta": ["guatemala", "chimaltenango", "coban", "flores"], "Distancia": 493}]
+ruta   = [str(c) for c in resultados[0]["Ruta"]]
+distancia = int(resultados[0]["Distancia"])
 ```
 
-**Parseo de resultados compuestos:**
+**Estrategia para consultas que retornan estructuras:**
 
-Para predicados que devuelven terminos compuestos (como `todas_las_rutas/3` que retorna una lista de `Distancia-Ruta`), se accede a los argumentos del termino mediante `.args`:
+En PySwip 0.3.x los terminos compuestos (como `O-D-Dist`) llegan como strings, no como objetos con `.args`. Por eso el repositorio usa consultas con **variables individuales** en lugar de predicados que devuelven listas de terminos anidados:
 
 ```python
-for item in resultados[0]["Rutas"]:
-    distancia = int(item.args[0])        # Primer argumento del termino '-'
-    ciudades = [str(c) for c in item.args[1]]  # Segunda argumento
+# Forma correcta: variables separadas (PySwip 0.3.x)
+resultados = list(prolog.query("conexion(Origen, Destino, Distancia)"))
+# resultados = [{"Origen": "guatemala", "Destino": "escuintla", "Distancia": 64}, ...]
+
+# Forma correcta para todas las rutas: query directo a ruta/4
+resultados = list(prolog.query("ruta(guatemala, flores, Ruta, Distancia)"))
+# Cada resultado tiene Ruta como lista Python y Distancia como int
 ```
 
 ---
