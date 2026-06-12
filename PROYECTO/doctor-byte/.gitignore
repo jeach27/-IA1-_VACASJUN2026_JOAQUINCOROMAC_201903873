@@ -1,0 +1,41 @@
+# Context del agente - nunca subir al repositorio
+.claude/
+
+# Variables de entorno
+.env
+
+# Historial de diagnosticos generado en ejecucion
+backend/data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+env/
+.venv/
+.env/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+
+# Prolog
+*.qlf
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

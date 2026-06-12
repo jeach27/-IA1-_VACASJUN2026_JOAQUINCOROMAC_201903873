@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Byte - Sistema Experto de Diagnostico</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <h1 class="header__title">Doctor Byte</h1>
+      <p class="header__subtitle">Sistema Experto de Diagnostico de Fallas en Computadoras</p>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Panel de seleccion de sintomas -->
+    <section class="card" id="seccion-diagnostico">
+      <h2 class="card__title">Selecciona los sintomas presentes</h2>
+      <p class="card__descripcion">
+        Marca todos los sintomas que el equipo esta presentando. Luego presiona
+        <strong>Diagnosticar</strong> para obtener el resultado.
+      </p>
+
+      <div class="sintomas-grid" id="lista-sintomas">
+        <p class="cargando">Cargando sintomas...</p>
+      </div>
+
+      <div class="acciones">
+        <button class="btn btn--primario" id="btn-diagnosticar">Diagnosticar</button>
+        <button class="btn btn--secundario" id="btn-limpiar">Limpiar seleccion</button>
+      </div>
+    </section>
+
+    <!-- Panel de resultados -->
+    <section class="card card--oculto" id="seccion-resultado">
+      <h2 class="card__title">Resultado del Diagnostico</h2>
+      <div id="contenido-resultado"></div>
+      <button class="btn btn--secundario" id="btn-nuevo-diagnostico">Nuevo diagnostico</button>
+    </section>
+
+    <!-- Historial de diagnosticos -->
+    <section class="card" id="seccion-historial">
+      <div class="historial-encabezado">
+        <h2 class="card__title">Historial de Diagnosticos</h2>
+        <button class="btn btn--icono" id="btn-actualizar-historial" title="Actualizar historial">
+          Actualizar
+        </button>
+      </div>
+      <div id="contenido-historial">
+        <p class="cargando">Cargando historial...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>Doctor Byte &mdash; Inteligencia Artificial 1 &mdash; Universidad San Carlos de Guatemala</p>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

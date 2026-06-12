@@ -1,0 +1,388 @@
+/* styles.css */
+/* Estilos principales de Doctor Byte */
+
+/* --- Variables de color y tipografia --- */
+:root {
+  --color-fondo: #0f1117;
+  --color-superficie: #1a1d27;
+  --color-superficie-alt: #21253a;
+  --color-borde: #2e3350;
+  --color-primario: #4c6ef5;
+  --color-primario-hover: #3b5bdb;
+  --color-acento: #20c997;
+  --color-peligro: #f03e3e;
+  --color-advertencia: #f59f00;
+  --color-texto: #e9ecef;
+  --color-texto-suave: #868e96;
+  --fuente-base: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --radio: 8px;
+  --sombra: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* --- Reset basico --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--fuente-base);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Encabezado --- */
+.header {
+  background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+  border-bottom: 1px solid var(--color-borde);
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.header__inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header__title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--color-primario);
+  letter-spacing: -0.5px;
+}
+
+.header__subtitle {
+  color: var(--color-texto-suave);
+  font-size: 1rem;
+  margin-top: 0.4rem;
+}
+
+/* --- Contenido principal --- */
+.main {
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- Tarjetas --- */
+.card {
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: 1.75rem;
+  box-shadow: var(--sombra);
+}
+
+.card--oculto {
+  display: none;
+}
+
+.card__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-texto);
+  margin-bottom: 0.5rem;
+}
+
+.card__descripcion {
+  color: var(--color-texto-suave);
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+/* --- Grilla de sintomas --- */
+.sintomas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.sintoma-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: var(--color-superficie-alt);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+  user-select: none;
+}
+
+.sintoma-item:hover {
+  border-color: var(--color-primario);
+}
+
+.sintoma-item.seleccionado {
+  border-color: var(--color-primario);
+  background-color: rgba(76, 110, 245, 0.12);
+}
+
+.sintoma-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primario);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sintoma-item label {
+  font-size: 0.9rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+/* --- Botones --- */
+.acciones {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border: none;
+  border-radius: var(--radio);
+  cursor: pointer;
+  font-family: var(--fuente-base);
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.65rem 1.5rem;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn--primario {
+  background-color: var(--color-primario);
+  color: #fff;
+}
+
+.btn--primario:hover {
+  background-color: var(--color-primario-hover);
+}
+
+.btn--primario:disabled {
+  background-color: var(--color-superficie-alt);
+  color: var(--color-texto-suave);
+  cursor: not-allowed;
+}
+
+.btn--secundario {
+  background-color: var(--color-superficie-alt);
+  border: 1px solid var(--color-borde);
+  color: var(--color-texto);
+}
+
+.btn--secundario:hover {
+  border-color: var(--color-primario);
+  color: var(--color-primario);
+}
+
+.btn--icono {
+  background-color: transparent;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  color: var(--color-texto-suave);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.9rem;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.btn--icono:hover {
+  border-color: var(--color-primario);
+  color: var(--color-primario);
+}
+
+/* --- Resultado del diagnostico --- */
+.resultado-vacio {
+  background-color: var(--color-superficie-alt);
+  border: 1px dashed var(--color-borde);
+  border-radius: var(--radio);
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--color-texto-suave);
+  margin-bottom: 1.25rem;
+}
+
+.diagnostico-card {
+  background-color: var(--color-superficie-alt);
+  border: 1px solid var(--color-borde);
+  border-left: 4px solid var(--color-acento);
+  border-radius: var(--radio);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.diagnostico-card__falla {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-acento);
+  margin-bottom: 0.5rem;
+}
+
+.diagnostico-card__recomendacion {
+  color: var(--color-texto);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.diagnostico-card__etiqueta {
+  font-size: 0.75rem;
+  color: var(--color-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.resultado-meta {
+  font-size: 0.85rem;
+  color: var(--color-texto-suave);
+  margin-bottom: 1rem;
+}
+
+/* --- Historial --- */
+.historial-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.historial-vacio {
+  color: var(--color-texto-suave);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.historial-item {
+  background-color: var(--color-superficie-alt);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.historial-item:hover {
+  border-color: var(--color-primario);
+}
+
+.historial-item__encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.historial-item__id {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: var(--color-primario);
+  background-color: rgba(76, 110, 245, 0.1);
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+}
+
+.historial-item__fecha {
+  font-size: 0.8rem;
+  color: var(--color-texto-suave);
+}
+
+.historial-item__resumen {
+  font-size: 0.875rem;
+  color: var(--color-texto-suave);
+}
+
+.historial-item__fallas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.etiqueta-falla {
+  background-color: rgba(32, 201, 151, 0.12);
+  border: 1px solid rgba(32, 201, 151, 0.3);
+  border-radius: 4px;
+  color: var(--color-acento);
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+}
+
+.etiqueta-sin-resultado {
+  background-color: rgba(240, 62, 62, 0.1);
+  border: 1px solid rgba(240, 62, 62, 0.3);
+  border-radius: 4px;
+  color: var(--color-peligro);
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+}
+
+/* --- Estados de carga y error --- */
+.cargando {
+  color: var(--color-texto-suave);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.error {
+  background-color: rgba(240, 62, 62, 0.1);
+  border: 1px solid rgba(240, 62, 62, 0.3);
+  border-radius: var(--radio);
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+/* --- Pie de pagina --- */
+.footer {
+  border-top: 1px solid var(--color-borde);
+  color: var(--color-texto-suave);
+  font-size: 0.8rem;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+/* --- Responsivo --- */
+@media (max-width: 600px) {
+  .header__title {
+    font-size: 1.8rem;
+  }
+
+  .sintomas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
