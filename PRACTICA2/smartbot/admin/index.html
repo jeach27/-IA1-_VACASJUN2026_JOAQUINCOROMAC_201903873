@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartBot - Panel administrativo</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">SmartBot</div>
+      <nav>
+        <a href="#" data-seccion="estadisticas">Estadisticas</a>
+        <a href="#" data-seccion="categorias">Categorias</a>
+        <a href="#" data-seccion="preguntas">Preguntas</a>
+        <a href="#" data-seccion="consultas">Historial</a>
+        <a href="#" data-seccion="configuracion">Configuracion</a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="btn-logout" class="btn btn-secondary btn-block">Cerrar sesion</button>
+      </div>
+    </aside>
+
+    <!-- Contenido -->
+    <main class="main-content">
+
+      <!-- Estadisticas -->
+      <section id="seccion-estadisticas" class="seccion">
+        <h2 class="page-title">Estadisticas</h2>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="valor" id="stat-total">-</div><div class="etiqueta">Total consultas</div></div>
+          <div class="stat-card"><div class="valor" id="stat-encontradas">-</div><div class="etiqueta">Con respuesta</div></div>
+          <div class="stat-card"><div class="valor" id="stat-no-encontradas">-</div><div class="etiqueta">Sin respuesta</div></div>
+          <div class="stat-card"><div class="valor" id="stat-usuarios">-</div><div class="etiqueta">Usuarios unicos</div></div>
+          <div class="stat-card"><div class="valor" id="stat-preguntas">-</div><div class="etiqueta">Preguntas</div></div>
+          <div class="stat-card"><div class="valor" id="stat-categorias">-</div><div class="etiqueta">Categorias</div></div>
+        </div>
+        <h3 style="margin-bottom:.75rem;font-size:1rem">Preguntas mas consultadas</h3>
+        <div class="tabla-wrapper">
+          <table>
+            <thead><tr><th>Pregunta</th><th>Consultas</th></tr></thead>
+            <tbody id="tabla-top-preguntas"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Categorias -->
+      <section id="seccion-categorias" class="seccion hidden">
+        <h2 class="page-title">Categorias</h2>
+        <div id="error-categorias" class="alert alert-error hidden"></div>
+        <div class="barra">
+          <span></span>
+          <button class="btn btn-primary" onclick="abrirModalCategoria()">Nueva categoria</button>
+        </div>
+        <div class="tabla-wrapper">
+          <table>
+            <thead><tr><th>ID</th><th>Nombre</th><th>Descripcion</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-categorias"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Preguntas -->
+      <section id="seccion-preguntas" class="seccion hidden">
+        <h2 class="page-title">Preguntas y respuestas</h2>
+        <div id="error-preguntas" class="alert alert-error hidden"></div>
+        <div class="barra">
+          <select id="filtro-cat-pregunta" style="padding:.4rem .7rem;border:1px solid var(--color-borde);border-radius:var(--radio)">
+            <option value="">Todas las categorias</option>
+          </select>
+          <button class="btn btn-primary" onclick="abrirModalPregunta()">Nueva pregunta</button>
+        </div>
+        <div class="tabla-wrapper">
+          <table>
+            <thead><tr><th>ID</th><th>Pregunta</th><th>Respuesta</th><th>Categoria</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-preguntas"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Historial de consultas -->
+      <section id="seccion-consultas" class="seccion hidden">
+        <h2 class="page-title">Historial de consultas</h2>
+        <div id="error-consultas" class="alert alert-error hidden"></div>
+        <div class="tabla-wrapper">
+          <table>
+            <thead><tr><th>ID</th><th>Usuario</th><th>Consulta</th><th>Respuesta</th><th>Encontrada</th><th>Fecha</th></tr></thead>
+            <tbody id="tbody-consultas"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Configuracion -->
+      <section id="seccion-configuracion" class="seccion hidden">
+        <h2 class="page-title">Configuracion del sistema</h2>
+        <div id="error-configuracion" class="alert alert-error hidden"></div>
+        <div id="exito-configuracion" class="alert alert-success hidden"></div>
+        <div id="configuracion-lista"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal Categoria -->
+  <div id="modal-categoria" class="modal-overlay hidden">
+    <div class="modal">
+      <h3 class="modal-titulo" id="modal-cat-titulo">Nueva categoria</h3>
+      <div id="error-modal-cat" class="alert alert-error hidden"></div>
+      <form id="form-categoria">
+        <input type="hidden" id="cat-id" />
+        <div class="form-group">
+          <label for="cat-nombre">Nombre</label>
+          <input type="text" id="cat-nombre" required />
+        </div>
+        <div class="form-group">
+          <label for="cat-descripcion">Descripcion</label>
+          <textarea id="cat-descripcion"></textarea>
+        </div>
+        <div class="modal-acciones">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-categoria').classList.add('hidden')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Pregunta -->
+  <div id="modal-pregunta" class="modal-overlay hidden">
+    <div class="modal">
+      <h3 class="modal-titulo" id="modal-preg-titulo">Nueva pregunta</h3>
+      <div id="error-modal-preg" class="alert alert-error hidden"></div>
+      <form id="form-pregunta">
+        <input type="hidden" id="pregunta-id" />
+        <div class="form-group">
+          <label for="pregunta-texto">Pregunta</label>
+          <textarea id="pregunta-texto" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="pregunta-respuesta">Respuesta</label>
+          <textarea id="pregunta-respuesta" required style="min-height:120px"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="pregunta-categoria">Categoria</label>
+          <select id="pregunta-categoria">
+            <option value="">Sin categoria</option>
+          </select>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:.5rem">
+          <input type="checkbox" id="pregunta-activa" checked style="width:auto" />
+          <label for="pregunta-activa" style="margin:0">Activa</label>
+        </div>
+        <div class="modal-acciones">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-pregunta').classList.add('hidden')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
