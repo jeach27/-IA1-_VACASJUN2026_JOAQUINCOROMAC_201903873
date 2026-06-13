@@ -4,12 +4,10 @@
 
 ## Requisitos previos
 
-Antes de ejecutar el sistema, se deben tener instalados los siguientes programas:
-
-| Programa | Version minima | Descarga |
+| Programa | Version | Descarga |
 |---|---|---|
-| Python | 3.10 | https://www.python.org/downloads/ |
-| SWI-Prolog | 9.0 | https://www.swi-prolog.org/Download.html |
+| Python | 3.10 o superior | https://www.python.org/downloads/ |
+| SWI-Prolog | 10.x | https://www.swi-prolog.org/Download.html |
 | Git | cualquiera | https://git-scm.com/ |
 
 ---
@@ -20,177 +18,234 @@ Antes de ejecutar el sistema, se deben tener instalados los siguientes programas
 
 ```bash
 git clone https://github.com/USUARIO/REPO.git
-cd REPO/doctor-byte
+cd REPO/PROYECTO/doctor-byte
 ```
 
-### Paso 2 - Instalar dependencias Python
+### Paso 2 - Configurar la variable de entorno de SWI-Prolog (Windows)
 
-```bash
+Abrir PowerShell y ejecutar una sola vez:
+
+```powershell
+# Encontrar la ruta de instalacion de SWI-Prolog
+(Get-Command swipl).Source
+
+# Configurar la variable (reemplazar la ruta con la encontrada arriba)
+[System.Environment]::SetEnvironmentVariable("SWI_HOME_DIR", "D:\ruta\a\swipl", "User")
+```
+
+Cerrar y abrir la terminal para que el cambio surta efecto.
+
+### Paso 3 - Crear el entorno virtual e instalar dependencias
+
+```powershell
 cd backend
+python -m venv venv
+.\venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Paso 3 - Configurar variables de entorno
+### Paso 4 - Configurar las variables de entorno del proyecto
 
-Copiar el archivo de ejemplo y editarlo con los valores reales:
+Copiar el archivo de ejemplo:
 
-```bash
-cp .env.example .env
+```powershell
+cd ..
+copy .env.example .env
 ```
 
-Abrir `.env` y completar:
+Abrir `.env` y completar con el token del bot de Telegram:
 
 ```
 TELEGRAM_TOKEN=tu_token_aqui
 ```
 
-Si no se usara Telegram, dejar el archivo como esta. El sistema funcionara sin notificaciones.
-
-### Paso 4 - Verificar SWI-Prolog en el PATH
-
-Ejecutar en la terminal:
-
-```bash
-swipl --version
-```
-
-Si el comando no se reconoce, agregar SWI-Prolog al PATH del sistema o reinstalarlo marcando la opcion correspondiente.
-
-En Windows, la ruta tipica es: `C:\Program Files\swipl\bin`
+Si no se usara Telegram, dejar el archivo como esta. El sistema funciona sin notificaciones.
 
 ---
 
 ## 2. Ejecucion del sistema
 
-### Iniciar el servidor
+Desde la carpeta `backend/` con el venv activado:
 
-Desde la carpeta `backend/`:
-
-```bash
+```powershell
 python app.py
 ```
 
 Se vera en la terminal:
 
 ```
+INFO telegram_bot: Hilo del bot de Telegram iniciado
  * Running on http://0.0.0.0:5000
- * Debug mode: on
-```
-
-### Abrir la interfaz
-
-Abrir un navegador web (Chrome, Edge o Firefox) e ingresar:
-
-```
-http://localhost:5000
+INFO prolog_bridge: Base de conocimiento cargada desde ...knowledge_base.pl
 ```
 
 ---
 
-## 3. Uso de la interfaz
+## 3. Interfaz de usuario principal
+
+Abrir en el navegador: `http://localhost:5000`
 
 ### Seleccionar sintomas
 
-La interfaz muestra una cuadricula con todos los sintomas disponibles. Hacer clic en uno o mas sintomas para seleccionarlos. Los items seleccionados se resaltan en azul.
-
-Los sintomas disponibles son:
-
-- Pantalla negra
-- Reinicio inesperado
-- Lentitud extrema
-- El equipo no enciende
-- Sonidos de pitidos al arranque
-- Sobrecalentamiento
-- Pantalla azul de la muerte (BSOD)
-- No reconoce el disco duro
-- Las aplicaciones se cierran solas
-- Sin sonido
-- La red no conecta
-- El teclado no responde
-- El mouse no responde
-- La bateria no carga
-- Ventilador muy ruidoso
-
-### Configurar notificacion de Telegram (opcional)
-
-Si se desea recibir el resultado por Telegram, ingresar el Chat ID en el campo correspondiente.
-
-Para obtener el Chat ID:
-1. Abrir Telegram.
-2. Buscar el bot @userinfobot.
-3. Enviarle cualquier mensaje.
-4. Copiar el numero que aparece en la respuesta (campo "Id:").
+La pagina muestra una cuadricula con los 15 sintomas disponibles. Hacer clic en uno o mas para seleccionarlos (se resaltan en azul).
 
 ### Solicitar el diagnostico
 
-Hacer clic en el boton **Diagnosticar**. El sistema procesara los sintomas y mostrara:
+Presionar **Diagnosticar**. El sistema consulta Prolog y muestra:
+- La falla detectada
+- La recomendacion de accion
 
-- La o las fallas detectadas.
-- La recomendacion de accion para cada falla.
+Si no se encuentra ninguna falla, se indica que no hay resultado para esa combinacion.
 
-Si no se encuentra ninguna falla para la combinacion de sintomas indicada, se mostrara un mensaje sugiriendo consultar a un tecnico.
+### Limpiar y reiniciar
 
-### Ver el historial
+- **Limpiar seleccion**: desmarca todos los sintomas y oculta el resultado.
+- **Nuevo diagnostico**: limpia todo y sube al inicio de la pagina.
 
-En la parte inferior de la pagina se muestra el historial de todos los diagnosticos realizados. Cada entrada muestra el id, la fecha, los sintomas y las fallas detectadas. Hacer clic en **Actualizar** para refrescar el historial sin recargar la pagina.
+### Historial
 
-### Limpiar la seleccion
-
-Hacer clic en **Limpiar seleccion** para desmarcar todos los sintomas y ocultar el panel de resultado.
+La seccion inferior muestra todos los diagnosticos anteriores con fecha, sintomas y fallas detectadas. Presionar **Actualizar** para refrescar sin recargar la pagina.
 
 ---
 
-## 4. Verificar la base de conocimiento en SWI-Prolog
+## 4. Panel de administracion
 
-Para probar la base de conocimiento directamente:
+Acceder desde el enlace **Administracion** en el encabezado de la pagina principal, o directamente en: `http://localhost:5000/admin`
 
-```bash
-swipl prolog/knowledge_base.pl
+### Sintomas
+
+Permite ver, agregar, editar y eliminar sintomas. Al guardar cualquier cambio, la base de conocimiento Prolog se regenera automaticamente.
+
+- Los nombres de sintomas deben ser atomos Prolog validos: solo letras minusculas, digitos y guion bajo, comenzando con letra.
+- Ejemplos validos: `pantalla_negra`, `sin_sonido2`
+- Ejemplos invalidos: `Pantalla Negra`, `2sintoma`, `sintoma-feo`
+
+### Fallas
+
+Igual que sintomas. Cada falla puede tener una recomendacion asociada.
+
+### Recomendaciones
+
+Permite ver, agregar, editar y eliminar el texto de recomendacion de cada falla.
+
+- **Agregar**: presionar el boton, seleccionar la falla del listado y escribir el texto.
+- **Editar**: presionar Editar en la fila correspondiente y modificar el texto.
+- **Eliminar**: presionar Eliminar en la fila correspondiente.
+
+### Reglas de inferencia
+
+Permite crear, editar y eliminar las reglas que Prolog usa para diagnosticar.
+
+Cada regla tiene:
+- **Falla**: la falla que se diagnostica si se cumple la regla
+- **Sintomas requeridos**: TODOS deben estar presentes
+- **Sintomas negados**: NINGUNO debe estar presente
+- **Usar corte (!)**: evita que Prolog busque otras reglas cuando esta se cumple
+
+Ejemplo: "Si hay pantalla negra Y no enciende Y NO hay sobrecalentamiento, entonces es falla de fuente de poder."
+
+### Asociaciones
+
+Vista de solo lectura que muestra como se relacionan los sintomas con las fallas y sus recomendaciones. Util para verificar la coherencia de la base de conocimiento.
+
+### Bot Telegram
+
+Permite configurar:
+- **ID del chat de destino**: el numero de chat al que se envian las notificaciones automaticas
+- **Bot habilitado**: activa o desactiva el envio sin necesidad de cambiar el codigo
+- **Mensaje de bienvenida**: texto del comando /start del bot
+- **Mensaje sin diagnostico**: texto cuando no se detectan fallas
+
+---
+
+## 5. Bot de Telegram
+
+### Configurar el bot
+
+1. Abrir Telegram y buscar **@BotFather**
+2. Escribirle `/newbot`
+3. Seguir las instrucciones para elegir nombre y username
+4. Copiar el token y pegarlo en el archivo `.env` como `TELEGRAM_TOKEN=...`
+5. Reiniciar el servidor
+
+### Obtener el Chat ID
+
+1. Buscar **@userinfobot** en Telegram
+2. Escribirle cualquier mensaje
+3. Copiar el numero del campo `Id:` en su respuesta
+4. Pegarlo en el panel admin (seccion Bot Telegram, campo "ID del chat de destino")
+
+### Comandos del bot
+
+Una vez configurado, buscar el bot en Telegram por su username y escribir:
+
+| Comando | Descripcion |
+|---|---|
+| /start | Muestra el mensaje de bienvenida |
+| /sintomas | Lista los 15 sintomas disponibles |
+| /diagnosticar s1,s2,... | Realiza un diagnostico |
+| /ayuda | Muestra los comandos disponibles |
+
+Ejemplo de uso:
+```
+/diagnosticar pantalla_negra,no_enciende
 ```
 
-Consultas de ejemplo en la consola:
+El bot responde con la falla detectada y la recomendacion.
+
+---
+
+## 6. Verificar la base de conocimiento en SWI-Prolog
+
+```powershell
+swipl prolog\knowledge_base.pl
+```
+
+Consultas de ejemplo:
 
 ```prolog
-% Listar todos los sintomas
+% Listar sintomas
 ?- listar_sintomas(S).
 
-% Diagnosticar pantalla negra y equipo que no enciende
+% Diagnosticar
 ?- obtener_diagnosticos([pantalla_negra, no_enciende], D).
 
-% Obtener recomendacion de una falla
+% Obtener recomendacion
 ?- recomendacion(falla_fuente_poder, R).
 
-% Ejecutar todos los casos de prueba
-?- consult('prolog/tests.pl'), ejecutar_todas_las_pruebas.
+% Salir
+?- halt.
 ```
 
 ---
 
-## 5. Probar los endpoints directamente
+## 7. Probar los endpoints directamente
 
-Con curl desde la terminal:
-
-```bash
-# Obtener lista de sintomas
+```powershell
+# Lista de sintomas
 curl http://localhost:5000/sintomas
 
-# Enviar diagnostico
-curl -X POST http://localhost:5000/diagnostico \
-  -H "Content-Type: application/json" \
+# Diagnostico
+curl -X POST http://localhost:5000/diagnostico `
+  -H "Content-Type: application/json" `
   -d '{"sintomas": ["pantalla_negra", "no_enciende"]}'
 
-# Ver historial
+# Historial
 curl http://localhost:5000/historial
+
+# Config del bot (admin)
+curl http://localhost:5000/admin/configuracion
 ```
 
 ---
 
-## 6. Solucion de problemas comunes
+## 8. Solucion de problemas comunes
 
 | Problema | Causa probable | Solucion |
 |---|---|---|
-| Error "SWI-Prolog not found" | SWI-Prolog no esta en el PATH | Agregar el directorio bin de SWI-Prolog al PATH del sistema |
-| Error al importar pyswip | pyswip no instalado o incompatible | Ejecutar `pip install pyswip==0.2.10` |
-| Pagina no carga en el navegador | El servidor Flask no esta corriendo | Verificar que `python app.py` este activo |
-| Telegram no envia mensajes | TELEGRAM_TOKEN no configurado | Completar el archivo `.env` con el token real |
-| Sin diagnostico para los sintomas | Combinacion no cubierta por las reglas | Agregar mas sintomas o consultar directamente en SWI-Prolog |
+| FATAL: could not find SWI-Prolog home | SWI_HOME_DIR no configurada | Ejecutar el comando de SetEnvironmentVariable y abrir terminal nueva |
+| OSError: access violation | pyswip desactualizado | Ejecutar `pip install pyswip --upgrade` (version 0.3.3+) |
+| Pagina no carga | Servidor Flask no activo | Verificar que `python app.py` este corriendo |
+| GET /sintomas retorna 500 | Prolog no puede cargarse | Verificar SWI_HOME_DIR y que swipl este en PATH |
+| Telegram no envia mensajes | Token no configurado o bot deshabilitado | Verificar .env y el panel admin seccion Bot Telegram |
+| Sin diagnostico para los sintomas | Combinacion no cubierta por reglas | Agregar una regla nueva desde el panel admin |

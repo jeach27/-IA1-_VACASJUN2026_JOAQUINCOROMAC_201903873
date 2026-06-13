@@ -108,21 +108,28 @@
       <section id="seccion-recomendaciones" class="admin-seccion admin-seccion--oculta">
         <div class="admin-seccion__encabezado">
           <h2 class="admin-seccion__titulo">Gestion de Recomendaciones</h2>
-          <p class="admin-seccion__descripcion">
-            Cada falla tiene una recomendacion asociada. Edita el texto que se mostrara al usuario.
-          </p>
+          <button class="btn btn--primario" id="btn-nueva-rec">+ Agregar recomendacion</button>
         </div>
 
         <div id="form-recomendacion" class="admin-form admin-form--oculto">
-          <h3 class="admin-form__titulo">Editar recomendacion</h3>
+          <h3 class="admin-form__titulo" id="form-rec-titulo">Nueva recomendacion</h3>
           <input type="hidden" id="rec-falla" />
-          <div class="admin-form__grupo">
+
+          <!-- Mostrado solo al crear: selector de falla -->
+          <div class="admin-form__grupo" id="rec-grupo-select">
+            <label for="rec-falla-select">Falla asociada</label>
+            <select id="rec-falla-select"></select>
+          </div>
+
+          <!-- Mostrado solo al editar: nombre fijo de la falla -->
+          <div class="admin-form__grupo" id="rec-grupo-fijo" style="display:none">
             <label>Falla</label>
             <p id="rec-falla-nombre" class="admin-form__valor-fijo"></p>
           </div>
+
           <div class="admin-form__grupo">
             <label for="rec-texto">Texto de la recomendacion</label>
-            <textarea id="rec-texto" rows="4" placeholder="Descripcion de la recomendacion..."></textarea>
+            <textarea id="rec-texto" rows="4" placeholder="Descripcion de la accion recomendada..."></textarea>
           </div>
           <div class="admin-form__acciones">
             <button class="btn btn--primario" id="btn-guardar-rec">Guardar</button>

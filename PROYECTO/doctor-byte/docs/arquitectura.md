@@ -1,49 +1,62 @@
 # Arquitectura del Sistema - Doctor Byte
 
-**Curso:** Inteligencia Artificial 1  
-**Proyecto:** Doctor Byte - Fase 1  
+**Curso:** Inteligencia Artificial 1
+**Proyecto:** Doctor Byte - Fase 1
 **Universidad:** Universidad San Carlos de Guatemala - Facultad de Ingenieria
 
 ---
 
 ## 1. Descripcion General
 
-Doctor Byte es un sistema experto para el diagnostico automatico de fallas comunes en computadoras. El usuario selecciona sintomas desde una interfaz web, el backend consulta el motor de inferencia en Prolog y retorna los diagnosticos con recomendaciones. Los resultados tambien se envian opcionalmente a un bot de Telegram.
+Doctor Byte es un sistema experto para el diagnostico automatico de fallas comunes en computadoras. El usuario selecciona sintomas desde una interfaz web, el backend consulta el motor de inferencia en Prolog y retorna los diagnosticos con recomendaciones. Los resultados se envian opcionalmente a un bot de Telegram. Un panel de administracion permite gestionar toda la base de conocimiento desde la interfaz.
 
 ---
 
 ## 2. Diagrama de Arquitectura
 
 ```
-[Usuario]
-    |
-    | (HTTP - navegador)
-    v
-[Frontend Web]
-index.html / styles.css / app.js
-    |
-    | (HTTP REST - fetch API)
-    v
-[Backend Flask - Python]
-app.py / prolog_bridge.py / history.py / telegram_bot.py
-    |               |               |
-    v               v               v
-[SWI-Prolog]  [historial.json]  [Telegram Bot API]
-knowledge_base.pl                     |
-                                 [Chat Telegram]
+[Usuario Web]                        [Usuario Telegram]
+     |                                      |
+     | HTTP (navegador)                     | Telegram API
+     v                                      v
+[Frontend Web]              [Bot Telegram - polling]
+index.html / admin.html          telegram_bot.py
+app.js / admin.js                     |
+     |                                |
+     | HTTP REST (fetch)              | HTTP interno
+     v                                v
+           [Backend Flask - Python]
+     app.py / prolog_bridge.py / history.py
+     admin_manager.py / kb_generator.py
+          |              |              |
+          v              v              v
+    [SWI-Prolog]  [historial.json]  [Telegram API]
+  knowledge_base.pl                     |
+  knowledge_store.json           [Chat Telegram]
 ```
 
-Flujo de una consulta:
-
-1. El usuario selecciona sintomas en el frontend y presiona Diagnosticar.
-2. El frontend envia POST /diagnostico al backend con la lista de sintomas.
+Flujo de una consulta desde el frontend:
+1. El usuario selecciona sintomas y presiona Diagnosticar.
+2. El frontend envia POST /diagnostico con la lista de sintomas.
 3. El backend llama a SWI-Prolog via pyswip con los sintomas.
-4. Prolog evalua las reglas de inferencia y retorna las fallas diagnosticadas.
+4. Prolog evalua las reglas de inferencia y retorna las fallas.
 5. El backend obtiene las recomendaciones para cada falla.
 6. El backend guarda el registro en historial.json.
-7. Si se proporciono un chat_id, el backend envia la notificacion a Telegram.
-8. El backend responde al frontend con el diagnostico completo.
-9. El frontend muestra los resultados al usuario.
+7. Si el bot esta habilitado, envia la notificacion a Telegram.
+8. El backend responde con el diagnostico completo al frontend.
+
+Flujo del bot interactivo de Telegram:
+1. El usuario escribe /diagnosticar pantalla_negra,no_enciende en el chat del bot.
+2. El hilo de polling recibe el mensaje via long polling a la API de Telegram.
+3. El bot llama internamente a POST http://localhost:5000/diagnostico.
+4. Recibe el resultado y lo formatea en Markdown.
+5. Responde al usuario en el mismo chat de Telegram.
+
+Flujo de actualizacion desde el panel admin:
+1. El administrador crea/edita/elimina un sintoma, falla, recomendacion o regla.
+2. admin_manager.py actualiza knowledge_store.json.
+3. kb_generator.py regenera knowledge_base.pl desde el store.
+4. prolog_bridge.py descarta la instancia singleton y la recarga en la proxima consulta.
 
 ---
 
@@ -51,11 +64,11 @@ Flujo de una consulta:
 
 | Componente | Tecnologia | Version |
 |---|---|---|
-| Motor de inferencia | SWI-Prolog | 9.x |
-| Backend | Python + Flask | Python 3.11 / Flask 3.0.3 |
-| Puente Python-Prolog | pyswip | 0.2.10 |
-| Frontend | HTML5 + CSS3 + JavaScript ES6 | - |
-| Notificaciones | Telegram Bot API (requests) | - |
+| Motor de inferencia | SWI-Prolog | 10.x |
+| Backend | Python + Flask | Python 3.13 / Flask 3.0.3 |
+| Puente Python-Prolog | pyswip | 0.3.3 |
+| Frontend | HTML5 + CSS3 + JavaScript ES6 (vanilla) | - |
+| Bot de Telegram | Telegram Bot API + urllib (stdlib) | - |
 | Control de versiones | Git | - |
 
 ---
@@ -65,27 +78,33 @@ Flujo de una consulta:
 ```
 doctor-byte/
 ├── prolog/
-│   ├── knowledge_base.pl     # Base de conocimiento principal
+│   ├── knowledge_base.pl     # Base de conocimiento (generada por kb_generator)
 │   └── tests.pl              # Casos de prueba ejecutables en SWI-Prolog
 ├── backend/
-│   ├── app.py                # Servidor Flask y definicion de endpoints
-│   ├── prolog_bridge.py      # Comunicacion Python <-> SWI-Prolog via pyswip
-│   ├── telegram_bot.py       # Envio de notificaciones al bot de Telegram
+│   ├── app.py                # Servidor Flask: endpoints del sistema y del admin
+│   ├── prolog_bridge.py      # Comunicacion Python <-> SWI-Prolog (singleton + reload)
+│   ├── telegram_bot.py       # Bot interactivo (polling) y envio de notificaciones
 │   ├── history.py            # Persistencia del historial de diagnosticos en JSON
+│   ├── admin_manager.py      # CRUD sobre knowledge_store.json y bot_config.json
+│   ├── kb_generator.py       # Genera knowledge_base.pl desde knowledge_store.json
 │   ├── requirements.txt      # Dependencias Python con versiones fijas
 │   └── data/
-│       └── historial.json    # Historial de diagnosticos (generado en ejecucion)
+│       ├── knowledge_store.json  # Fuente de verdad de la base de conocimiento
+│       ├── bot_config.json       # Configuracion del bot (chat_id, mensajes, estado)
+│       └── historial.json        # Historial de diagnosticos (generado en ejecucion)
 ├── frontend/
-│   ├── index.html            # Pagina principal de la interfaz
+│   ├── index.html            # Interfaz de usuario principal
+│   ├── admin.html            # Panel de administracion
 │   ├── css/
-│   │   └── styles.css        # Estilos de la interfaz
+│   │   └── styles.css        # Estilos del sistema (usuario y admin)
 │   └── js/
-│       └── app.js            # Logica del cliente
+│       ├── app.js            # Logica del frontend de usuario
+│       └── admin.js          # Logica del panel de administracion
 ├── docs/
 │   ├── arquitectura.md       # Este documento
-│   ├── manual_usuario.md     # Manual de usuario
+│   ├── manual_usuario.md     # Manual de usuario y administrador
 │   └── casos_de_prueba.md    # Casos de prueba y resultados
-├── .env.example              # Ejemplo de variables de entorno
+├── .env.example              # Plantilla de variables de entorno
 ├── .gitignore
 └── README.md
 ```
@@ -96,11 +115,9 @@ doctor-byte/
 
 ### Archivo: prolog/knowledge_base.pl
 
-El archivo esta organizado en cinco secciones:
+El archivo esta organizado en cinco secciones y es generado automaticamente por `kb_generator.py` a partir de `knowledge_store.json`. No debe editarse manualmente.
 
 **Seccion 1 - Sintomas (15 hechos)**
-
-Cada sintoma se declara con el predicado `sintoma/1`:
 
 ```prolog
 sintoma(pantalla_negra).
@@ -110,8 +127,6 @@ sintoma(reinicio_inesperado).
 
 **Seccion 2 - Fallas (10 hechos)**
 
-Cada falla diagnosticable se declara con el predicado `falla/1`:
-
 ```prolog
 falla(falla_ram).
 falla(falla_disco_duro).
@@ -120,20 +135,27 @@ falla(falla_disco_duro).
 
 **Seccion 3 - Recomendaciones (10 hechos)**
 
-Cada recomendacion se asocia a una falla con `recomendacion/2`:
-
 ```prolog
-recomendacion(falla_ram, 'Verificar y reemplazar los modulos de RAM...').
+recomendacion(falla_ram,
+    'Verificar y reemplazar los modulos de RAM...').
 ```
 
-**Seccion 4 - Reglas de inferencia (11 reglas)**
+**Seccion 4 - Reglas de inferencia (12 reglas)**
 
 Las reglas usan el predicado `diagnostico/2` que recibe una lista de sintomas y unifica con una falla:
 
 ```prolog
+% Regla r1: Fuente de poder falla cuando el equipo no enciende y la pantalla esta negra
 diagnostico(Sintomas, falla_fuente_poder) :-
     member(pantalla_negra, Sintomas),
     member(no_enciende, Sintomas),
+    !.
+
+% Regla r2: Falla de RAM cuando hay pitidos sin falla de placa madre
+diagnostico(Sintomas, falla_ram) :-
+    member(sonido_pitidos_arranque, Sintomas),
+    \+ member(teclado_no_responde, Sintomas),
+    \+ member(mouse_no_responde, Sintomas),
     !.
 ```
 
@@ -141,18 +163,16 @@ Elementos de Prolog utilizados:
 - **Hechos**: `sintoma/1`, `falla/1`, `recomendacion/2`
 - **Reglas**: `diagnostico/2`, `listar_sintomas/1`, `obtener_diagnosticos/2`
 - **Variables**: `Sintomas`, `Falla`, `Recomendacion`, `Diagnosticos`
-- **Listas**: los sintomas se pasan como lista, `SintomasDrivers = [sin_sonido, red_no_conecta]`
-- **Corte (!)**: presente en las reglas principales para evitar backtracking innecesario
-- **Predicados de lista**: `member/2`, `intersection/3`, `list_to_set/2`, `findall/3`
+- **Listas**: los sintomas se pasan y procesan como listas Prolog
+- **Corte (!)**: en todas las reglas principales para evitar backtracking innecesario
 - **Negacion**: `\+` para descartar condiciones
+- **Predicados de lista**: `member/2`, `list_to_set/2`, `findall/3`
 
 **Seccion 5 - Predicados utilitarios**
 
 ```prolog
-% Retorna todos los sintomas disponibles como lista
 listar_sintomas(Sintomas) :- findall(S, sintoma(S), Sintomas).
 
-% Retorna todas las fallas diagnosticadas para una lista de sintomas
 obtener_diagnosticos(Sintomas, Diagnosticos) :-
     findall(F, diagnostico(Sintomas, F), DiagnosticosDups),
     list_to_set(DiagnosticosDups, Diagnosticos).
@@ -161,17 +181,10 @@ obtener_diagnosticos(Sintomas, Diagnosticos) :-
 ### Ejecucion de consultas manualmente
 
 ```prolog
-% Cargar la base de conocimiento
 ?- consult('prolog/knowledge_base.pl').
-
-% Listar todos los sintomas
 ?- listar_sintomas(S).
-
-% Diagnosticar con sintomas especificos
 ?- obtener_diagnosticos([pantalla_negra, no_enciende], D).
 % D = [falla_fuente_poder]
-
-% Obtener recomendacion de una falla
 ?- recomendacion(falla_fuente_poder, R).
 ```
 
@@ -179,152 +192,228 @@ obtener_diagnosticos(Sintomas, Diagnosticos) :-
 
 ## 6. Backend - API REST
 
-### Archivo: backend/app.py
-
-El servidor Flask expone los siguientes endpoints:
+### Endpoints del sistema experto
 
 #### GET /sintomas
 
-Retorna la lista de todos los sintomas disponibles en la base de conocimiento.
+Retorna todos los sintomas disponibles en la base de conocimiento.
 
-**Response (200 OK):**
+**Response (200):**
 ```json
-{
-  "sintomas": [
-    "pantalla_negra",
-    "reinicio_inesperado",
-    "lentitud_extrema",
-    "..."
-  ]
-}
+{ "sintomas": ["pantalla_negra", "reinicio_inesperado", "..."] }
 ```
 
 #### POST /diagnostico
 
-Recibe una lista de sintomas y retorna las fallas diagnosticadas con sus recomendaciones.
+Recibe sintomas, consulta Prolog, guarda en historial y notifica a Telegram.
 
-**Request body:**
+**Request:**
 ```json
-{
-  "sintomas": ["pantalla_negra", "no_enciende"],
-  "chat_id": "123456789"
-}
+{ "sintomas": ["pantalla_negra", "no_enciende"] }
 ```
 
-El campo `chat_id` es opcional. Si se proporciona, el diagnostico se envia al chat de Telegram indicado.
-
-**Response (200 OK):**
+**Response (200):**
 ```json
 {
   "id": "a1b2c3d4",
-  "fecha": "2026-06-10 14:30:00",
+  "fecha": "2026-06-12 22:49:00",
   "sintomas": ["pantalla_negra", "no_enciende"],
   "diagnosticos": [
-    {
-      "falla": "falla_fuente_poder",
-      "recomendacion": "Revisar conexiones de la fuente de poder..."
-    }
+    { "falla": "falla_fuente_poder", "recomendacion": "Revisar conexiones..." }
   ]
 }
 ```
 
-**Response (400 Bad Request):**
+**Response (400):**
 ```json
-{
-  "error": "Se requiere el campo sintomas en el cuerpo de la solicitud"
-}
+{ "error": "Se requiere el campo sintomas en el cuerpo de la solicitud" }
 ```
 
 #### GET /historial
 
-Retorna el historial de todos los diagnosticos realizados, del mas reciente al mas antiguo.
+Retorna todos los diagnosticos del mas reciente al mas antiguo.
 
-**Response (200 OK):**
+**Response (200):**
+```json
+{ "historial": [ {...}, {...} ] }
+```
+
+### Endpoints del panel de administracion
+
+Todos los endpoints admin requieren Content-Type: application/json.
+
+#### Sintomas
+
+| Metodo | Ruta | Descripcion |
+|---|---|---|
+| GET | /admin/sintomas | Lista todos los sintomas |
+| POST | /admin/sintomas | Crea un nuevo sintoma `{nombre, etiqueta}` |
+| PUT | /admin/sintomas/<nombre> | Actualiza nombre y etiqueta |
+| DELETE | /admin/sintomas/<nombre> | Elimina el sintoma |
+
+#### Fallas
+
+| Metodo | Ruta | Descripcion |
+|---|---|---|
+| GET | /admin/fallas | Lista todas las fallas |
+| POST | /admin/fallas | Crea una nueva falla `{nombre, etiqueta}` |
+| PUT | /admin/fallas/<nombre> | Actualiza nombre y etiqueta |
+| DELETE | /admin/fallas/<nombre> | Elimina la falla |
+
+#### Recomendaciones
+
+| Metodo | Ruta | Descripcion |
+|---|---|---|
+| GET | /admin/recomendaciones | Lista todas las recomendaciones |
+| PUT | /admin/recomendaciones/<falla> | Crea o actualiza la recomendacion de una falla |
+| DELETE | /admin/recomendaciones/<falla> | Elimina la recomendacion |
+
+#### Reglas
+
+| Metodo | Ruta | Descripcion |
+|---|---|---|
+| GET | /admin/reglas | Lista todas las reglas |
+| POST | /admin/reglas | Crea una nueva regla |
+| PUT | /admin/reglas/<id> | Actualiza una regla existente |
+| DELETE | /admin/reglas/<id> | Elimina una regla |
+
+Cuerpo para crear/actualizar regla:
 ```json
 {
-  "historial": [
-    {
-      "id": "a1b2c3d4",
-      "fecha": "2026-06-10 14:30:00",
-      "sintomas": ["pantalla_negra", "no_enciende"],
-      "diagnosticos": [...]
-    }
-  ]
+  "falla": "falla_ram",
+  "sintomas_requeridos": ["sonido_pitidos_arranque"],
+  "sintomas_negados": ["teclado_no_responde"],
+  "usa_corte": true,
+  "descripcion": "Descripcion de la regla"
 }
 ```
 
-### Archivo: backend/prolog_bridge.py
+#### Asociaciones
 
-Encapsula la comunicacion con SWI-Prolog usando la libreria `pyswip`. Mantiene una instancia singleton de Prolog para evitar recargar la base de conocimiento en cada solicitud.
+| Metodo | Ruta | Descripcion |
+|---|---|---|
+| GET | /admin/asociaciones | Vista agrupada: falla + reglas + recomendacion |
 
-Funciones expuestas:
-- `consultar_sintomas()` - retorna lista de strings
-- `consultar_diagnostico(sintomas: list)` - retorna lista de dicts `{falla, recomendacion}`
+#### Configuracion del bot
 
-### Archivo: backend/history.py
+| Metodo | Ruta | Descripcion |
+|---|---|---|
+| GET | /admin/configuracion | Lee la configuracion actual del bot |
+| PUT | /admin/configuracion | Actualiza chat_id, habilitado y mensajes |
 
-Persiste cada diagnostico en `backend/data/historial.json`. Las funciones principales son:
-- `guardar_diagnostico(sintomas, diagnosticos)` - escribe el registro y retorna el objeto creado
-- `obtener_historial()` - lee y retorna todos los registros en orden inverso
+Cuerpo:
+```json
+{
+  "chat_id": "123456789",
+  "habilitado": true,
+  "mensajes": {
+    "bienvenida": "Texto de bienvenida",
+    "sin_diagnostico": "Mensaje cuando no hay resultados"
+  }
+}
+```
 
 ---
 
-## 7. Bot de Telegram
+## 7. Gestion de la base de conocimiento (admin)
+
+### Archivo: backend/knowledge_store.json
+
+Fuente de verdad estructurada que alimenta la generacion del archivo Prolog. Contiene:
+- `sintomas`: lista de `{nombre, etiqueta}`
+- `fallas`: lista de `{nombre, etiqueta}`
+- `recomendaciones`: lista de `{falla, texto}`
+- `reglas`: lista de `{id, falla, sintomas_requeridos, sintomas_negados, usa_corte, descripcion}`
+
+### Archivo: backend/kb_generator.py
+
+Lee `knowledge_store.json` y genera `prolog/knowledge_base.pl` en formato Prolog valido. Al final llama a `prolog_bridge.recargar()` para que el motor de inferencia use la nueva base.
+
+### Archivo: backend/admin_manager.py
+
+Expone funciones CRUD sobre `knowledge_store.json`. Cada operacion de escritura llama a `kb_generator.regenerar_base_conocimiento()` automaticamente. Valida que los nombres de sintomas y fallas sean atomos Prolog validos (letras minusculas, digitos y guion bajo).
+
+---
+
+## 8. Bot de Telegram
 
 ### Archivo: backend/telegram_bot.py
 
-Usamos `urllib.request` de la libreria estandar de Python para hacer la peticion HTTP a la API REST de Telegram, sin dependencias externas especificas para Telegram. Tanto el token como el chat_id de destino se leen exclusivamente desde variables de entorno.
+Implementado con `urllib.request` de la libreria estandar de Python, sin dependencias externas adicionales para Telegram.
 
-**Variables de entorno requeridas:**
+**Modos de operacion:**
+
+1. **Notificaciones automaticas** (`enviar_diagnostico`): llamado desde el endpoint `/diagnostico` cada vez que se realiza un diagnostico desde el frontend. Lee el `chat_id` y el estado `habilitado` desde `bot_config.json`.
+
+2. **Bot interactivo** (`_hilo_polling`): hilo de fondo que realiza long polling a la API de Telegram. Comandos disponibles:
+   - `/start` — mensaje de bienvenida
+   - `/sintomas` — lista los sintomas disponibles (llama a GET /sintomas)
+   - `/diagnosticar s1,s2,...` — realiza un diagnostico (llama a POST /diagnostico)
+   - `/ayuda` — muestra los comandos disponibles
+
+**Variables de entorno:**
 
 | Variable | Descripcion |
 |---|---|
-| TELEGRAM_TOKEN | Token del bot obtenido desde @BotFather |
-| TELEGRAM_CHAT_ID | ID del chat que recibe las notificaciones |
+| TELEGRAM_TOKEN | Token del bot obtenido de @BotFather (obligatorio) |
 
-Si alguna de las dos no esta configurada, el envio se omite sin interrumpir el flujo principal ni retornar error al usuario.
+**Configuracion desde el admin:**
 
-**Flujo de notificacion:**
-1. El endpoint `/diagnostico` llama a `enviar_diagnostico(diagnosticos)` en cada solicitud.
-2. La funcion lee `TELEGRAM_TOKEN` y `TELEGRAM_CHAT_ID` del entorno.
-3. Construye un mensaje en formato Markdown con las fallas y recomendaciones.
-4. Realiza POST a `https://api.telegram.org/bot{TOKEN}/sendMessage` via `urllib.request`.
-5. El resultado se registra en el log. Los errores no interrumpen la respuesta al usuario.
-
-**Configuracion del bot:**
-1. Abrir Telegram y buscar @BotFather.
-2. Ejecutar `/newbot` y seguir las instrucciones.
-3. Copiar el token al archivo `.env` como `TELEGRAM_TOKEN=tu_token`.
-4. Para obtener el Chat ID: escribirle al bot @userinfobot en Telegram.
-5. Copiar el ID al archivo `.env` como `TELEGRAM_CHAT_ID=tu_chat_id`.
+| Campo en bot_config.json | Descripcion |
+|---|---|
+| chat_id | ID del chat que recibe las notificaciones automaticas |
+| habilitado | Activa o desactiva el envio de notificaciones |
+| mensajes.bienvenida | Texto del comando /start |
+| mensajes.sin_diagnostico | Texto cuando no hay fallas detectadas |
 
 ---
 
-## 8. Frontend
+## 9. Frontend
 
-### Archivos: frontend/
+### Interfaz de usuario: frontend/index.html + app.js
 
-El frontend es una SPA (Single Page Application) que se sirve directamente desde Flask al visitar `http://localhost:5000`.
+SPA que se sirve desde Flask al visitar `http://localhost:5000`.
 
-**Interaccion con el backend:**
+Secciones:
+- **Seleccion de sintomas**: cuadricula de checkboxes cargada dinamicamente desde GET /sintomas
+- **Resultado**: muestra fallas y recomendaciones tras el diagnostico
+- **Historial**: lista de diagnosticos previos actualizable sin recargar
 
-1. Al cargar la pagina, `app.js` llama a `GET /sintomas` y renderiza los checkboxes dinamicamente.
-2. Al presionar Diagnosticar, se llama a `POST /diagnostico` con los sintomas seleccionados.
-3. Los resultados se muestran en la seccion de resultado sin recargar la pagina.
-4. El historial se carga al inicio y se actualiza despues de cada diagnostico.
+### Panel de administracion: frontend/admin.html + admin.js
 
-**Dependencias:** ninguna libreria externa. Vanilla HTML + CSS + JavaScript.
+Accesible desde `http://localhost:5000/admin` o desde el enlace en el header.
+
+Secciones del panel:
+- **Sintomas**: CRUD completo con validacion de nombres Prolog
+- **Fallas**: CRUD completo
+- **Recomendaciones**: CRUD completo (crear, editar, eliminar)
+- **Reglas**: CRUD con selectores de sintomas requeridos y negados
+- **Asociaciones**: vista de solo lectura que muestra como los sintomas se vinculan a fallas
+- **Bot Telegram**: configuracion de chat_id, estado habilitado y mensajes personalizables
 
 ---
 
-## 9. Variables de Entorno
+## 10. Variables de Entorno
 
 | Variable | Descripcion | Requerida |
 |---|---|---|
-| TELEGRAM_TOKEN | Token del bot de Telegram obtenido de @BotFather | Si se usa Telegram |
-| TELEGRAM_CHAT_ID | ID del chat de destino para las notificaciones | Si se usa Telegram |
+| TELEGRAM_TOKEN | Token del bot de Telegram de @BotFather | Para usar Telegram |
 
-Ambas variables deben estar presentes para que el envio a Telegram funcione.
-Si falta alguna, el sistema omite el envio y continua normalmente.
+El `chat_id` se configura desde el panel admin (Bot Telegram) o como fallback en `TELEGRAM_CHAT_ID` en el `.env`.
 
 Ver `.env.example` para la plantilla de configuracion.
+
+---
+
+## 11. Configuracion en Windows con SWI-Prolog 10.x
+
+La libreria `pyswip 0.3.3` requiere que la variable de entorno `SWI_HOME_DIR` apunte a la carpeta raiz de SWI-Prolog:
+
+```powershell
+[System.Environment]::SetEnvironmentVariable("SWI_HOME_DIR", "D:\ruta\a\swipl", "User")
+```
+
+Verificar la ruta real con:
+```powershell
+(Get-Command swipl).Source
+```

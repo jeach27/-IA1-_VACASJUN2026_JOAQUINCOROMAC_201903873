@@ -340,6 +340,8 @@ async function eliminarFalla(nombre) {
 // RECOMENDACIONES
 // =============================================================================
 
+let editandoRecomendacion = null;
+
 async function cargarRecomendaciones() {
   const wrapper = document.getElementById('tabla-recomendaciones');
   wrapper.innerHTML = '<p class="cargando">Cargando recomendaciones...</p>';
@@ -368,11 +370,14 @@ function renderizarTablaRecomendaciones(recomendaciones) {
   const tbody = document.createElement('tbody');
   recomendaciones.forEach(r => {
     const tr = document.createElement('tr');
+    tr.dataset.falla = r.falla;
+    tr.dataset.texto = r.texto;
     tr.innerHTML = `
       <td><code>${r.falla}</code></td>
       <td class="celda-texto">${r.texto}</td>
       <td class="acciones-celda">
         <button class="btn-accion btn-accion--editar" data-falla="${r.falla}">Editar</button>
+        <button class="btn-accion btn-accion--eliminar" data-falla="${r.falla}">Eliminar</button>
       </td>`;
     tbody.appendChild(tr);
   });
@@ -381,36 +386,69 @@ function renderizarTablaRecomendaciones(recomendaciones) {
   wrapper.appendChild(tabla);
 
   wrapper.querySelectorAll('.btn-accion--editar').forEach(btn => {
-    btn.addEventListener('click', () => abrirFormRecomendacion(btn.dataset.falla));
+    btn.addEventListener('click', () => abrirFormRecomendacion('editar', btn.dataset.falla));
+  });
+  wrapper.querySelectorAll('.btn-accion--eliminar').forEach(btn => {
+    btn.addEventListener('click', () => eliminarRecomendacion(btn.dataset.falla));
   });
 }
 
-function abrirFormRecomendacion(falla) {
-  const wrapper = document.getElementById('tabla-recomendaciones');
-  const filas = wrapper.querySelectorAll('tbody tr');
-  let textoActual = '';
-  filas.forEach(tr => {
-    const cod = tr.querySelector('code');
-    if (cod && cod.textContent === falla) {
-      textoActual = tr.querySelector('.celda-texto').textContent;
-    }
-  });
+async function abrirFormRecomendacion(modo, falla = null) {
+  const form = document.getElementById('form-recomendacion');
+  const titulo = document.getElementById('form-rec-titulo');
+  const grupoSelect = document.getElementById('rec-grupo-select');
+  const grupoFijo = document.getElementById('rec-grupo-fijo');
 
-  document.getElementById('rec-falla').value = falla;
-  document.getElementById('rec-falla-nombre').textContent = falla;
-  document.getElementById('rec-texto').value = textoActual;
-  document.getElementById('form-recomendacion').classList.remove('admin-form--oculto');
+  if (modo === 'crear') {
+    titulo.textContent = 'Nueva recomendacion';
+    grupoSelect.style.display = '';
+    grupoFijo.style.display = 'none';
+    document.getElementById('rec-falla').value = '';
+    document.getElementById('rec-texto').value = '';
+    editandoRecomendacion = null;
+
+    // Poblar el select con todas las fallas disponibles
+    const datosFallas = await apiFetch('/admin/fallas');
+    const select = document.getElementById('rec-falla-select');
+    select.innerHTML = '';
+    datosFallas.fallas.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f.nombre;
+      opt.textContent = `${f.nombre} — ${f.etiqueta}`;
+      select.appendChild(opt);
+    });
+  } else {
+    titulo.textContent = 'Editar recomendacion';
+    grupoSelect.style.display = 'none';
+    grupoFijo.style.display = '';
+    document.getElementById('rec-falla').value = falla;
+    document.getElementById('rec-falla-nombre').textContent = falla;
+    editandoRecomendacion = falla;
+
+    // Buscar el texto actual en la tabla
+    const fila = document.querySelector(`#tabla-recomendaciones tr[data-falla="${falla}"]`);
+    document.getElementById('rec-texto').value = fila ? fila.dataset.texto : '';
+  }
+
+  form.classList.remove('admin-form--oculto');
   document.getElementById('rec-texto').focus();
 }
 
 function cerrarFormRecomendacion() {
   document.getElementById('form-recomendacion').classList.add('admin-form--oculto');
+  editandoRecomendacion = null;
 }
 
 async function guardarRecomendacion() {
-  const falla = document.getElementById('rec-falla').value;
   const texto = document.getElementById('rec-texto').value.trim();
+  const falla = editandoRecomendacion
+    ? document.getElementById('rec-falla').value
+    : document.getElementById('rec-falla-select').value;
 
+  if (!falla) {
+    mostrarNotificacion('Selecciona una falla.', 'error');
+    return;
+  }
   if (!texto) {
     mostrarNotificacion('El texto de la recomendacion no puede estar vacio.', 'error');
     return;
@@ -421,8 +459,21 @@ async function guardarRecomendacion() {
       method: 'PUT',
       body: JSON.stringify({ texto }),
     });
-    mostrarNotificacion('Recomendacion actualizada correctamente.');
+    mostrarNotificacion(editandoRecomendacion
+      ? 'Recomendacion actualizada correctamente.'
+      : 'Recomendacion creada correctamente.');
     cerrarFormRecomendacion();
+    cargarRecomendaciones();
+  } catch (e) {
+    mostrarNotificacion(e.message, 'error');
+  }
+}
+
+async function eliminarRecomendacion(falla) {
+  if (!confirmar(`¿Eliminar la recomendacion de "${falla}"?`)) return;
+  try {
+    await apiFetch(`/admin/recomendaciones/${falla}`, { method: 'DELETE' });
+    mostrarNotificacion('Recomendacion eliminada.');
     cargarRecomendaciones();
   } catch (e) {
     mostrarNotificacion(e.message, 'error');
@@ -747,6 +798,7 @@ document.getElementById('btn-guardar-falla').addEventListener('click', guardarFa
 document.getElementById('btn-cancelar-falla').addEventListener('click', cerrarFormFalla);
 
 // Recomendaciones
+document.getElementById('btn-nueva-rec').addEventListener('click', () => abrirFormRecomendacion('crear'));
 document.getElementById('btn-guardar-rec').addEventListener('click', guardarRecomendacion);
 document.getElementById('btn-cancelar-rec').addEventListener('click', cerrarFormRecomendacion);
 
