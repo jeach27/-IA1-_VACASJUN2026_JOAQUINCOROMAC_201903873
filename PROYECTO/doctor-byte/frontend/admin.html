@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Byte - Administracion</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__inner">
+      <h1 class="header__title">Doctor Byte</h1>
+      <p class="header__subtitle">Panel de Administracion del Sistema</p>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+
+    <!-- Barra lateral de navegacion -->
+    <aside class="admin-sidebar">
+      <a href="/" class="admin-sidebar__volver">← Volver al sistema</a>
+      <nav class="admin-sidebar__nav">
+        <button class="sidebar-btn active" data-seccion="sintomas">Sintomas</button>
+        <button class="sidebar-btn" data-seccion="fallas">Fallas</button>
+        <button class="sidebar-btn" data-seccion="recomendaciones">Recomendaciones</button>
+        <button class="sidebar-btn" data-seccion="reglas">Reglas</button>
+        <button class="sidebar-btn" data-seccion="asociaciones">Asociaciones</button>
+        <button class="sidebar-btn" data-seccion="configuracion">Bot Telegram</button>
+      </nav>
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="admin-main">
+
+      <!-- Notificacion global -->
+      <div id="notificacion" class="notificacion notificacion--oculta"></div>
+
+      <!-- ================================================================
+           SECCION: SINTOMAS
+      ================================================================ -->
+      <section id="seccion-sintomas" class="admin-seccion">
+        <div class="admin-seccion__encabezado">
+          <h2 class="admin-seccion__titulo">Gestion de Sintomas</h2>
+          <button class="btn btn--primario" id="btn-nuevo-sintoma">+ Agregar sintoma</button>
+        </div>
+
+        <!-- Formulario de sintoma (oculto por defecto) -->
+        <div id="form-sintoma" class="admin-form admin-form--oculto">
+          <h3 class="admin-form__titulo" id="form-sintoma-titulo">Nuevo sintoma</h3>
+          <input type="hidden" id="sintoma-nombre-original" />
+          <div class="admin-form__grupo">
+            <label for="sintoma-nombre">Nombre (identificador Prolog)</label>
+            <input type="text" id="sintoma-nombre" placeholder="pantalla_negra" autocomplete="off" />
+            <span class="admin-form__ayuda">Solo letras minusculas, digitos y guion bajo. Debe empezar con letra.</span>
+          </div>
+          <div class="admin-form__grupo">
+            <label for="sintoma-etiqueta">Etiqueta visible</label>
+            <input type="text" id="sintoma-etiqueta" placeholder="Pantalla negra" autocomplete="off" />
+          </div>
+          <div class="admin-form__acciones">
+            <button class="btn btn--primario" id="btn-guardar-sintoma">Guardar</button>
+            <button class="btn btn--secundario" id="btn-cancelar-sintoma">Cancelar</button>
+          </div>
+        </div>
+
+        <!-- Tabla de sintomas -->
+        <div id="tabla-sintomas" class="admin-tabla-wrapper">
+          <p class="cargando">Cargando sintomas...</p>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           SECCION: FALLAS
+      ================================================================ -->
+      <section id="seccion-fallas" class="admin-seccion admin-seccion--oculta">
+        <div class="admin-seccion__encabezado">
+          <h2 class="admin-seccion__titulo">Gestion de Fallas</h2>
+          <button class="btn btn--primario" id="btn-nueva-falla">+ Agregar falla</button>
+        </div>
+
+        <div id="form-falla" class="admin-form admin-form--oculto">
+          <h3 class="admin-form__titulo" id="form-falla-titulo">Nueva falla</h3>
+          <input type="hidden" id="falla-nombre-original" />
+          <div class="admin-form__grupo">
+            <label for="falla-nombre">Nombre (identificador Prolog)</label>
+            <input type="text" id="falla-nombre" placeholder="falla_ram" autocomplete="off" />
+            <span class="admin-form__ayuda">Solo letras minusculas, digitos y guion bajo. Debe empezar con letra.</span>
+          </div>
+          <div class="admin-form__grupo">
+            <label for="falla-etiqueta">Etiqueta visible</label>
+            <input type="text" id="falla-etiqueta" placeholder="Falla en la memoria RAM" autocomplete="off" />
+          </div>
+          <div class="admin-form__acciones">
+            <button class="btn btn--primario" id="btn-guardar-falla">Guardar</button>
+            <button class="btn btn--secundario" id="btn-cancelar-falla">Cancelar</button>
+          </div>
+        </div>
+
+        <div id="tabla-fallas" class="admin-tabla-wrapper">
+          <p class="cargando">Cargando fallas...</p>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           SECCION: RECOMENDACIONES
+      ================================================================ -->
+      <section id="seccion-recomendaciones" class="admin-seccion admin-seccion--oculta">
+        <div class="admin-seccion__encabezado">
+          <h2 class="admin-seccion__titulo">Gestion de Recomendaciones</h2>
+          <p class="admin-seccion__descripcion">
+            Cada falla tiene una recomendacion asociada. Edita el texto que se mostrara al usuario.
+          </p>
+        </div>
+
+        <div id="form-recomendacion" class="admin-form admin-form--oculto">
+          <h3 class="admin-form__titulo">Editar recomendacion</h3>
+          <input type="hidden" id="rec-falla" />
+          <div class="admin-form__grupo">
+            <label>Falla</label>
+            <p id="rec-falla-nombre" class="admin-form__valor-fijo"></p>
+          </div>
+          <div class="admin-form__grupo">
+            <label for="rec-texto">Texto de la recomendacion</label>
+            <textarea id="rec-texto" rows="4" placeholder="Descripcion de la recomendacion..."></textarea>
+          </div>
+          <div class="admin-form__acciones">
+            <button class="btn btn--primario" id="btn-guardar-rec">Guardar</button>
+            <button class="btn btn--secundario" id="btn-cancelar-rec">Cancelar</button>
+          </div>
+        </div>
+
+        <div id="tabla-recomendaciones" class="admin-tabla-wrapper">
+          <p class="cargando">Cargando recomendaciones...</p>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           SECCION: REGLAS
+      ================================================================ -->
+      <section id="seccion-reglas" class="admin-seccion admin-seccion--oculta">
+        <div class="admin-seccion__encabezado">
+          <h2 class="admin-seccion__titulo">Gestion de Reglas de Inferencia</h2>
+          <button class="btn btn--primario" id="btn-nueva-regla">+ Agregar regla</button>
+        </div>
+
+        <div id="form-regla" class="admin-form admin-form--oculto">
+          <h3 class="admin-form__titulo" id="form-regla-titulo">Nueva regla</h3>
+          <input type="hidden" id="regla-id" />
+
+          <div class="admin-form__grupo">
+            <label for="regla-falla">Falla diagnosticada</label>
+            <select id="regla-falla"></select>
+          </div>
+
+          <div class="admin-form__grupo">
+            <label>Sintomas requeridos (deben estar TODOS presentes)</label>
+            <div id="regla-sintomas-req" class="selector-multiples"></div>
+          </div>
+
+          <div class="admin-form__grupo">
+            <label>Sintomas negados (NO deben estar presentes)</label>
+            <div id="regla-sintomas-neg" class="selector-multiples"></div>
+          </div>
+
+          <div class="admin-form__grupo admin-form__grupo--inline">
+            <input type="checkbox" id="regla-corte" checked />
+            <label for="regla-corte">Usar corte (!) para evitar backtracking</label>
+          </div>
+
+          <div class="admin-form__grupo">
+            <label for="regla-descripcion">Descripcion de la regla</label>
+            <input type="text" id="regla-descripcion" placeholder="Cuando el equipo no enciende y la pantalla esta negra..." autocomplete="off" />
+          </div>
+
+          <div class="admin-form__acciones">
+            <button class="btn btn--primario" id="btn-guardar-regla">Guardar regla</button>
+            <button class="btn btn--secundario" id="btn-cancelar-regla">Cancelar</button>
+          </div>
+        </div>
+
+        <div id="tabla-reglas" class="admin-tabla-wrapper">
+          <p class="cargando">Cargando reglas...</p>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           SECCION: ASOCIACIONES
+      ================================================================ -->
+      <section id="seccion-asociaciones" class="admin-seccion admin-seccion--oculta">
+        <div class="admin-seccion__encabezado">
+          <h2 class="admin-seccion__titulo">Mapa de Asociaciones</h2>
+          <p class="admin-seccion__descripcion">
+            Vista consolidada de como los sintomas se asocian a fallas y sus recomendaciones.
+          </p>
+        </div>
+        <div id="contenido-asociaciones" class="admin-tabla-wrapper">
+          <p class="cargando">Cargando asociaciones...</p>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           SECCION: CONFIGURACION DEL BOT
+      ================================================================ -->
+      <section id="seccion-configuracion" class="admin-seccion admin-seccion--oculta">
+        <div class="admin-seccion__encabezado">
+          <h2 class="admin-seccion__titulo">Configuracion del Bot de Telegram</h2>
+          <p class="admin-seccion__descripcion">
+            El token del bot se configura en la variable de entorno <code>TELEGRAM_TOKEN</code> del servidor.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="admin-form__grupo">
+            <label for="cfg-chat-id">ID del chat de destino</label>
+            <input type="text" id="cfg-chat-id" placeholder="123456789" autocomplete="off" />
+            <span class="admin-form__ayuda">
+              Obtienelo escribiendole a @userinfobot en Telegram o revisando el historial del chat.
+            </span>
+          </div>
+
+          <div class="admin-form__grupo admin-form__grupo--inline">
+            <input type="checkbox" id="cfg-habilitado" checked />
+            <label for="cfg-habilitado">Bot habilitado (envia notificaciones automaticamente)</label>
+          </div>
+
+          <hr class="admin-separador" />
+
+          <h3 class="admin-form__subtitulo">Mensajes personalizables</h3>
+
+          <div class="admin-form__grupo">
+            <label for="cfg-msg-bienvenida">Mensaje de bienvenida (/start)</label>
+            <textarea id="cfg-msg-bienvenida" rows="3"></textarea>
+          </div>
+
+          <div class="admin-form__grupo">
+            <label for="cfg-msg-sin-diagnostico">Mensaje cuando no hay diagnostico</label>
+            <textarea id="cfg-msg-sin-diagnostico" rows="3"></textarea>
+          </div>
+
+          <div class="admin-form__acciones">
+            <button class="btn btn--primario" id="btn-guardar-config">Guardar configuracion</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p>Doctor Byte &mdash; Panel de Administracion &mdash; Inteligencia Artificial 1 &mdash; USAC</p>
+  </footer>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

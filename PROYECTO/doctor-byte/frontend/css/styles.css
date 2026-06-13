@@ -67,6 +67,19 @@ body {
   margin-top: 0.4rem;
 }
 
+.header__admin-link {
+  color: var(--color-texto-suave);
+  display: inline-block;
+  font-size: 0.8rem;
+  margin-top: 0.6rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.header__admin-link:hover {
+  color: var(--color-primario);
+}
+
 /* --- Contenido principal --- */
 .main {
   flex: 1;
@@ -384,5 +397,546 @@ body {
   .btn {
     width: 100%;
     text-align: center;
+  }
+}
+
+/* =============================================================================
+   PANEL DE ADMINISTRACION
+   ============================================================================= */
+
+/* Layout general del panel */
+.admin-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Barra lateral */
+.admin-sidebar {
+  background-color: var(--color-superficie);
+  border-right: 1px solid var(--color-borde);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 200px;
+  padding: 1.25rem 0;
+}
+
+.admin-sidebar__volver {
+  color: var(--color-texto-suave);
+  display: block;
+  font-size: 0.85rem;
+  padding: 0.5rem 1.25rem 1rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.admin-sidebar__volver:hover {
+  color: var(--color-primario);
+}
+
+.admin-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-btn {
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  color: var(--color-texto-suave);
+  cursor: pointer;
+  font-family: var(--fuente-base);
+  font-size: 0.9rem;
+  padding: 0.75rem 1.25rem;
+  text-align: left;
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+}
+
+.sidebar-btn:hover {
+  background-color: var(--color-superficie-alt);
+  color: var(--color-texto);
+}
+
+.sidebar-btn.active {
+  border-left-color: var(--color-primario);
+  color: var(--color-primario);
+  background-color: rgba(76, 110, 245, 0.08);
+}
+
+/* Contenido principal del admin */
+.admin-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.75rem 2rem;
+}
+
+/* Notificacion flotante */
+.notificacion {
+  border-radius: var(--radio);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  transition: opacity 0.3s;
+}
+
+.notificacion--oculta {
+  display: none;
+}
+
+.notificacion--exito {
+  background-color: rgba(32, 201, 151, 0.12);
+  border: 1px solid rgba(32, 201, 151, 0.3);
+  color: var(--color-acento);
+}
+
+.notificacion--error {
+  background-color: rgba(240, 62, 62, 0.1);
+  border: 1px solid rgba(240, 62, 62, 0.3);
+  color: #ff6b6b;
+}
+
+/* Secciones */
+.admin-seccion {
+  animation: fadeIn 0.2s ease;
+}
+
+.admin-seccion--oculta {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.admin-seccion__encabezado {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.admin-seccion__titulo {
+  flex: 1;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.admin-seccion__descripcion {
+  color: var(--color-texto-suave);
+  flex-basis: 100%;
+  font-size: 0.9rem;
+  margin-top: -0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Formularios del admin */
+.admin-form {
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+}
+
+.admin-form--oculto {
+  display: none;
+}
+
+.admin-form__titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-primario);
+}
+
+.admin-form__subtitulo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 1rem 0 0.75rem;
+  color: var(--color-texto);
+}
+
+.admin-form__grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.admin-form__grupo label {
+  color: var(--color-texto-suave);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.admin-form__grupo input[type="text"],
+.admin-form__grupo select,
+.admin-form__grupo textarea {
+  background-color: var(--color-superficie-alt);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  color: var(--color-texto);
+  font-family: var(--fuente-base);
+  font-size: 0.9rem;
+  padding: 0.55rem 0.85rem;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.admin-form__grupo input[type="text"]:focus,
+.admin-form__grupo select:focus,
+.admin-form__grupo textarea:focus {
+  border-color: var(--color-primario);
+  outline: none;
+}
+
+.admin-form__grupo textarea {
+  resize: vertical;
+}
+
+.admin-form__grupo--inline {
+  align-items: center;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.admin-form__grupo--inline input[type="checkbox"] {
+  accent-color: var(--color-primario);
+  height: 16px;
+  width: 16px;
+}
+
+.admin-form__ayuda {
+  color: var(--color-texto-suave);
+  font-size: 0.78rem;
+}
+
+.admin-form__valor-fijo {
+  background-color: var(--color-superficie-alt);
+  border-radius: 4px;
+  color: var(--color-acento);
+  font-family: monospace;
+  font-size: 0.9rem;
+  padding: 0.35rem 0.75rem;
+}
+
+.admin-form__acciones {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.admin-separador {
+  border: none;
+  border-top: 1px solid var(--color-borde);
+  margin: 1.25rem 0;
+}
+
+/* Tablas del admin */
+.admin-tabla-wrapper {
+  overflow-x: auto;
+}
+
+.admin-tabla {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.admin-tabla th,
+.admin-tabla td {
+  border-bottom: 1px solid var(--color-borde);
+  font-size: 0.875rem;
+  padding: 0.7rem 1rem;
+  text-align: left;
+}
+
+.admin-tabla th {
+  background-color: var(--color-superficie);
+  color: var(--color-texto-suave);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.admin-tabla tbody tr:hover {
+  background-color: rgba(76, 110, 245, 0.04);
+}
+
+.admin-tabla code {
+  background-color: var(--color-superficie-alt);
+  border-radius: 3px;
+  color: var(--color-acento);
+  font-size: 0.82rem;
+  padding: 0.1rem 0.4rem;
+}
+
+.celda-texto {
+  color: var(--color-texto-suave);
+  max-width: 500px;
+}
+
+.acciones-celda {
+  display: flex;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+/* Botones de accion en tablas */
+.btn-accion {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--fuente-base);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.3rem 0.7rem;
+  transition: background-color 0.2s;
+}
+
+.btn-accion--editar {
+  background-color: rgba(76, 110, 245, 0.15);
+  color: var(--color-primario);
+}
+
+.btn-accion--editar:hover {
+  background-color: rgba(76, 110, 245, 0.3);
+}
+
+.btn-accion--eliminar {
+  background-color: rgba(240, 62, 62, 0.12);
+  color: #ff6b6b;
+}
+
+.btn-accion--eliminar:hover {
+  background-color: rgba(240, 62, 62, 0.25);
+}
+
+.admin-vacio {
+  color: var(--color-texto-suave);
+  font-size: 0.9rem;
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+/* Cards de reglas */
+.regla-card {
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  margin-bottom: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+.regla-card__encabezado {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.regla-card__id {
+  background-color: rgba(76, 110, 245, 0.1);
+  border-radius: 4px;
+  color: var(--color-primario);
+  font-family: monospace;
+  font-size: 0.78rem;
+  padding: 0.1rem 0.5rem;
+}
+
+.regla-card__falla {
+  color: var(--color-acento);
+  font-family: monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.regla-card__acciones {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.regla-card__descripcion {
+  color: var(--color-texto-suave);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.regla-card__detalle {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  gap: 1rem;
+}
+
+.regla-card__detalle code {
+  background-color: var(--color-superficie-alt);
+  border-radius: 3px;
+  color: var(--color-acento);
+  padding: 0.05rem 0.35rem;
+}
+
+/* Selector de multiples sintomas */
+.selector-multiples {
+  background-color: var(--color-superficie-alt);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 0.6rem;
+}
+
+.selector-item {
+  align-items: center;
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  font-size: 0.8rem;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.selector-item input[type="checkbox"] {
+  accent-color: var(--color-primario);
+}
+
+/* Cards de asociaciones */
+.asoc-card {
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.asoc-card__encabezado {
+  align-items: center;
+  background-color: var(--color-superficie-alt);
+  border-bottom: 1px solid var(--color-borde);
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.asoc-card__falla {
+  color: var(--color-acento);
+  font-weight: 600;
+}
+
+.asoc-card__falla-id {
+  color: var(--color-texto-suave);
+  font-size: 0.8rem;
+}
+
+.asoc-card__reglas {
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.asoc-regla {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.asoc-regla__id {
+  background-color: rgba(76, 110, 245, 0.1);
+  border-radius: 3px;
+  color: var(--color-primario);
+  font-family: monospace;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.4rem;
+  white-space: nowrap;
+}
+
+.asoc-regla__sintomas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.etiqueta-sintoma {
+  border-radius: 4px;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+}
+
+.etiqueta-sintoma--req {
+  background-color: rgba(32, 201, 151, 0.12);
+  border: 1px solid rgba(32, 201, 151, 0.3);
+  color: var(--color-acento);
+}
+
+.etiqueta-sintoma--neg {
+  background-color: rgba(240, 62, 62, 0.1);
+  border: 1px solid rgba(240, 62, 62, 0.25);
+  color: #ff6b6b;
+}
+
+.asoc-card__rec {
+  border-top: 1px solid var(--color-borde);
+  color: var(--color-texto-suave);
+  font-size: 0.85rem;
+  padding: 0.6rem 1.25rem;
+}
+
+.asoc-card__rec--vacia {
+  color: var(--color-advertencia);
+  font-style: italic;
+}
+
+/* Responsivo para el admin */
+@media (max-width: 720px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--color-borde);
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: 0;
+    padding: 0.5rem;
+  }
+
+  .admin-sidebar__volver {
+    flex-basis: 100%;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .admin-sidebar__nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .sidebar-btn {
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .sidebar-btn.active {
+    border-bottom-color: var(--color-primario);
+    border-left-color: transparent;
+  }
+
+  .admin-main {
+    padding: 1rem;
   }
 }

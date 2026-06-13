@@ -23,6 +23,13 @@ def _obtener_instancia():
     return _prolog
 
 
+def recargar():
+    """Descarta la instancia actual de Prolog para que se recargue en la proxima consulta."""
+    global _prolog
+    _prolog = None
+    logger.info("Instancia de Prolog descartada; se recargara en la proxima consulta")
+
+
 def _atom_a_str(valor):
     """Convierte un valor retornado por pyswip a cadena de texto legible."""
     if isinstance(valor, bytes):
