@@ -14,26 +14,9 @@ Doctor Byte es un sistema experto para el diagnostico automatico de fallas comun
 
 ## 2. Diagrama de Arquitectura
 
-```
-[Usuario Web]                        [Usuario Telegram]
-     |                                      |
-     | HTTP (navegador)                     | Telegram API
-     v                                      v
-[Frontend Web]              [Bot Telegram - polling]
-index.html / admin.html          telegram_bot.py
-app.js / admin.js                     |
-     |                                |
-     | HTTP REST (fetch)              | HTTP interno
-     v                                v
-           [Backend Flask - Python]
-     app.py / prolog_bridge.py / history.py
-     admin_manager.py / kb_generator.py
-          |              |              |
-          v              v              v
-    [SWI-Prolog]  [historial.json]  [Telegram API]
-  knowledge_base.pl                     |
-  knowledge_store.json           [Chat Telegram]
-```
+![Diagrama de Componentes](DiagramaArquitectura.png)
+
+*Diagrama de componentes del sistema. Fuente en formato PlantUML disponible en `docs/diagramas.md`.*
 
 Flujo de una consulta desde el frontend:
 1. El usuario selecciona sintomas y presiona Diagnosticar.
@@ -315,7 +298,15 @@ Cuerpo:
 
 ---
 
-## 7. Gestion de la base de conocimiento (admin)
+## 7. Modulos del Backend
+
+![Modulos Python](modulosPython.png)
+
+*Dependencias entre los modulos Python del backend. Fuente en formato PlantUML disponible en `docs/diagramas.md`.*
+
+---
+
+## 8. Gestion de la base de conocimiento (admin)
 
 ### Archivo: backend/knowledge_store.json
 
@@ -335,7 +326,7 @@ Expone funciones CRUD sobre `knowledge_store.json`. Cada operacion de escritura 
 
 ---
 
-## 8. Bot de Telegram
+## 9. Bot de Telegram
 
 ### Archivo: backend/telegram_bot.py
 
@@ -368,7 +359,7 @@ Implementado con `urllib.request` de la libreria estandar de Python, sin depende
 
 ---
 
-## 9. Frontend
+## 10. Frontend
 
 ### Interfaz de usuario: frontend/index.html + app.js
 
@@ -393,7 +384,7 @@ Secciones del panel:
 
 ---
 
-## 10. Variables de Entorno
+## 11. Variables de Entorno
 
 | Variable | Descripcion | Requerida |
 |---|---|---|
@@ -405,7 +396,7 @@ Ver `.env.example` para la plantilla de configuracion.
 
 ---
 
-## 11. Configuracion en Windows con SWI-Prolog 10.x
+## 12. Configuracion en Windows con SWI-Prolog 10.x
 
 La libreria `pyswip 0.3.3` requiere que la variable de entorno `SWI_HOME_DIR` apunte a la carpeta raiz de SWI-Prolog:
 
