@@ -121,6 +121,8 @@ En la seccion **Historial** puedes ver todas las consultas realizadas al bot con
 
 ### 5.5 Configuracion del sistema
 
+![Flujo Activar/Desactivar Bot](FlujoActivarDesactivarBot.png)
+
 1. Haz clic en **Configuracion** en el menu lateral.
 2. Al tope de la seccion veras la **tarjeta de estado del bot**:
    - Un indicador verde significa que el bot esta activo y responde mensajes.
@@ -135,6 +137,8 @@ En la seccion **Historial** puedes ver todas las consultas realizadas al bot con
 4. Haz clic en **Guardar** junto a cada campo para aplicar el cambio.
 
 ## 6. Uso del bot de Telegram
+
+![Flujo de consulta](FlujoConsulta.png)
 
 1. Busca tu bot en Telegram por el nombre que le asignaste en BotFather.
 2. Inicia una conversacion con `/start`.

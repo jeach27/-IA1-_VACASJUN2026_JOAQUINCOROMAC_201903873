@@ -75,19 +75,27 @@ SmartBot es un sistema de respuestas automatizadas que integra un bot de Telegra
 
 Ver `docs/arquitectura.md` seccion 4.
 
-## 6. Modelo de datos
+## 6. Arquitectura del sistema
 
-Ver `docs/arquitectura.md` seccion 5.
+![Diagrama de Arquitectura](DiagramaArquitectura.png)
 
-## 7. Endpoints de la API
+Ver descripcion completa en `docs/arquitectura.md` seccion 2.
+
+## 7. Modelo de datos
+
+![Diagrama ER](ER-db.png)
+
+Ver descripcion completa en `docs/arquitectura.md` seccion 5.
+
+## 8. Endpoints de la API
 
 Ver `docs/arquitectura.md` seccion 6.
 
-## 8. Configuracion de Docker Compose
+## 9. Configuracion de Docker Compose
 
 Ver `docs/arquitectura.md` seccion 9.
 
-## 9. Variables de entorno
+## 10. Variables de entorno
 
 | Variable                     | Descripcion                                     |
 |------------------------------|-------------------------------------------------|
@@ -102,7 +110,7 @@ Ver `docs/arquitectura.md` seccion 9.
 | TELEGRAM_TOKEN               | Token del bot obtenido desde BotFather          |
 | API_URL                      | URL de la API usada por el bot                  |
 
-## 10. Posibles mejoras futuras
+## 11. Posibles mejoras futuras
 
 - Implementar busqueda semantica con embeddings para mejorar la precision de las respuestas.
 - Agregar soporte para respuestas con imagenes o archivos adjuntos.

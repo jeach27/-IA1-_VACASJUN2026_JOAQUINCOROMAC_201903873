@@ -16,6 +16,8 @@ Todos los componentes se ejecutan dentro de contenedores Docker orquestados con 
 
 Se utiliza una arquitectura de **capas (Layered Architecture)** combinada con el patron **API Gateway**:
 
+![Diagrama de Arquitectura](DiagramaArquitectura.png)
+
 ```
 [Usuario Telegram]              [Administrador]
         |                              |
@@ -109,6 +111,8 @@ smartbot/
 - `configuracion` almacena pares clave-valor del sistema.
 
 ### Diagrama Entidad-Relacion
+
+![Diagrama ER](ER-db.png)
 
 ```mermaid
 erDiagram
@@ -280,6 +284,8 @@ Response:
 
 El bot se implementa con `python-telegram-bot` en modo polling. Flujo de una consulta:
 
+![Flujo de consulta](FlujoConsulta.png)
+
 1. El usuario envia un mensaje al bot en Telegram.
 2. El handler `manejar_mensaje` captura el texto.
 3. El bot realiza `POST /consultar` a la API con el texto y datos del usuario.
@@ -311,6 +317,8 @@ El panel es una SPA estatica (HTML/CSS/JS vanilla) servida por el mismo contened
 - Las secciones disponibles son: Estadisticas, Categorias, Preguntas, Historial y Configuracion.
 
 ### Feature: Activar/Desactivar Bot
+
+![Flujo Activar/Desactivar Bot](FlujoActivarDesactivarBot.png)
 
 En la seccion Configuracion del panel, la tarjeta de estado del bot muestra:
 - Un indicador visual (circulo verde = activo, rojo = inactivo).
