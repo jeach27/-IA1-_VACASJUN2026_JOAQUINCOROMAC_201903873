@@ -96,5 +96,6 @@ ON CONFLICT DO NOTHING;
 INSERT INTO configuracion (clave, valor, descripcion) VALUES
 ('telegram_chat_id', '', 'ID del grupo o chat de Telegram donde el bot envia mensajes'),
 ('bot_nombre', 'SmartBot', 'Nombre del bot mostrado en respuestas'),
-('mensaje_no_encontrado', 'Lo siento, no encontre una respuesta para tu consulta. Por favor intenta reformular tu pregunta o contacta directamente con la institucion.', 'Mensaje cuando el bot no encuentra respuesta')
+('mensaje_no_encontrado', 'Lo siento, no encontre una respuesta para tu consulta. Por favor intenta reformular tu pregunta o contacta directamente con la institucion.', 'Mensaje cuando el bot no encuentra respuesta'),
+('bot_activo', 'true', 'Indica si el bot esta activo (true) o inactivo (false). Se controla desde el panel administrativo.')
 ON CONFLICT (clave) DO NOTHING;

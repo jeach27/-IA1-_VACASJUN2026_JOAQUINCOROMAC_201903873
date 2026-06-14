@@ -281,3 +281,56 @@ tr:hover td { background: #f8fafc; }
 
 .badge-verde { background: #dcfce7; color: var(--color-exito); }
 .badge-rojo { background: #fee2e2; color: var(--color-peligro); }
+
+/* --- Toggle estado del bot --- */
+.bot-estado-card {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--sombra);
+}
+
+.bot-estado-info {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.bot-estado-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bot-estado-dot.activo { background: var(--color-exito); box-shadow: 0 0 0 3px #bbf7d0; }
+.bot-estado-dot.inactivo { background: var(--color-peligro); box-shadow: 0 0 0 3px #fecaca; }
+
+.bot-estado-texto strong {
+  display: block;
+  font-size: .95rem;
+}
+
+.bot-estado-texto small {
+  color: var(--color-texto-suave);
+}
+
+.btn-toggle-activo { background: var(--color-peligro); color: #fff; }
+.btn-toggle-activo:hover { background: #b91c1c; }
+.btn-toggle-inactivo { background: var(--color-exito); color: #fff; }
+.btn-toggle-inactivo:hover { background: #15803d; }
+
+.config-fields-titulo {
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--color-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: .75rem;
+}

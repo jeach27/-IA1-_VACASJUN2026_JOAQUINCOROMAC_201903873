@@ -122,11 +122,17 @@ En la seccion **Historial** puedes ver todas las consultas realizadas al bot con
 ### 5.5 Configuracion del sistema
 
 1. Haz clic en **Configuracion** en el menu lateral.
-2. Puedes modificar:
+2. Al tope de la seccion veras la **tarjeta de estado del bot**:
+   - Un indicador verde significa que el bot esta activo y responde mensajes.
+   - Un indicador rojo significa que el bot esta inactivo.
+   - Haz clic en **Desactivar bot** para suspender las respuestas temporalmente.
+   - Haz clic en **Activar bot** para reanudar las respuestas.
+   - El cambio toma efecto de inmediato en la proxima consulta de cualquier usuario.
+3. Debajo puedes modificar los parametros del sistema:
    - `telegram_chat_id`: ID del grupo o chat donde el bot puede enviar mensajes proactivos.
    - `bot_nombre`: Nombre del bot mostrado en algunos mensajes.
    - `mensaje_no_encontrado`: Mensaje que el bot responde cuando no encuentra una respuesta.
-3. Haz clic en **Guardar** junto a cada campo para aplicar el cambio.
+4. Haz clic en **Guardar** junto a cada campo para aplicar el cambio.
 
 ## 6. Uso del bot de Telegram
 

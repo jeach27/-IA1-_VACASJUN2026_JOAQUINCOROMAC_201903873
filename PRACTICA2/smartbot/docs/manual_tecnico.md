@@ -18,6 +18,7 @@ SmartBot es un sistema de respuestas automatizadas que integra un bot de Telegra
 | RF08 | Cuando no existe una respuesta para la consulta, el bot responde con un mensaje predeterminado   |
 | RF09 | Las preguntas y respuestas se almacenan y gestionan desde la base de datos, nunca en el codigo  |
 | RF10 | El sistema soporta al menos 3 categorias y al menos 20 preguntas frecuentes                     |
+| RF11 | El administrador puede activar o desactivar el bot desde el panel; cuando esta inactivo, el bot rechaza todas las consultas con un mensaje informativo |
 
 ## 3. Requerimientos no funcionales
 

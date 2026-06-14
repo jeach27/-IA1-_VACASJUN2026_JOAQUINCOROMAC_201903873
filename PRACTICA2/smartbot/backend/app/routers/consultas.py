@@ -34,6 +34,29 @@ def buscar_respuesta(texto: str, sesion: Session):
 
 @router.post("/consultar", response_model=ConsultaRespuestaBot)
 def consultar(datos: ConsultaRequest, sesion: Session = Depends(obtener_sesion)):
+    # Verificamos si el bot esta activo antes de procesar la consulta
+    config_bot_activo = (
+        sesion.query(Configuracion)
+        .filter(Configuracion.clave == "bot_activo")
+        .first()
+    )
+    if config_bot_activo and config_bot_activo.valor == "false":
+        registro = Consulta(
+            telegram_user=datos.telegram_user,
+            telegram_user_id=datos.telegram_user_id,
+            texto_consulta=datos.texto,
+            texto_respuesta="Bot inactivo",
+            pregunta_id=None,
+            encontrada=False,
+        )
+        sesion.add(registro)
+        sesion.commit()
+        return ConsultaRespuestaBot(
+            respuesta="El bot se encuentra temporalmente inactivo. Intenta mas tarde.",
+            encontrada=False,
+            pregunta_id=None,
+        )
+
     # Obtenemos el mensaje de no encontrado desde la configuracion del sistema
     config_no_encontrado = (
         sesion.query(Configuracion)

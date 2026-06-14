@@ -97,6 +97,20 @@
         <h2 class="page-title">Configuracion del sistema</h2>
         <div id="error-configuracion" class="alert alert-error hidden"></div>
         <div id="exito-configuracion" class="alert alert-success hidden"></div>
+
+        <!-- Tarjeta de estado del bot -->
+        <div class="bot-estado-card" id="bot-estado-card">
+          <div class="bot-estado-info">
+            <div class="bot-estado-dot" id="bot-estado-dot"></div>
+            <div class="bot-estado-texto">
+              <strong id="bot-estado-etiqueta">Cargando...</strong>
+              <small>Controla si el bot responde mensajes de Telegram</small>
+            </div>
+          </div>
+          <button class="btn" id="btn-toggle-bot" onclick="toggleBot()">...</button>
+        </div>
+
+        <p class="config-fields-titulo">Parametros del sistema</p>
         <div id="configuracion-lista"></div>
       </section>
 

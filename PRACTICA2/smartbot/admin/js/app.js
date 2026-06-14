@@ -289,20 +289,65 @@ async function cargarConsultas() {
 }
 
 // --- Configuracion ---
+
+let botActivoActual = true;
+
+function actualizarTarjetaBot(activo) {
+  botActivoActual = activo;
+  const dot = document.getElementById('bot-estado-dot');
+  const etiqueta = document.getElementById('bot-estado-etiqueta');
+  const btn = document.getElementById('btn-toggle-bot');
+  if (!dot) return;
+
+  if (activo) {
+    dot.className = 'bot-estado-dot activo';
+    etiqueta.textContent = 'Bot activo - respondiendo mensajes';
+    btn.textContent = 'Desactivar bot';
+    btn.className = 'btn btn-toggle-activo';
+  } else {
+    dot.className = 'bot-estado-dot inactivo';
+    etiqueta.textContent = 'Bot inactivo - no responde mensajes';
+    btn.textContent = 'Activar bot';
+    btn.className = 'btn btn-toggle-inactivo';
+  }
+}
+
+async function toggleBot() {
+  const nuevoValor = botActivoActual ? 'false' : 'true';
+  try {
+    await apiFetch('/configuracion/bot_activo', { method: 'PUT', body: JSON.stringify({ valor: nuevoValor }) });
+    actualizarTarjetaBot(nuevoValor === 'true');
+    const msg = nuevoValor === 'true' ? 'Bot activado correctamente' : 'Bot desactivado correctamente';
+    mostrarAlerta('exito-configuracion', msg, 'success');
+  } catch (err) {
+    mostrarAlerta('error-configuracion', err.message);
+  }
+}
+
 async function cargarConfiguracion() {
   try {
     const configs = await apiFetch('/configuracion') || [];
+
+    // Procesamos el estado del bot de forma separada
+    const cfgBotActivo = configs.find(c => c.clave === 'bot_activo');
+    if (cfgBotActivo) {
+      actualizarTarjetaBot(cfgBotActivo.valor === 'true');
+    }
+
+    // Mostramos el resto de parametros excluyendo bot_activo (ya tiene su control dedicado)
     const contenedor = document.getElementById('configuracion-lista');
-    contenedor.innerHTML = configs.map(c => `
-      <div class="form-group">
-        <label>${escHtml(c.clave)}</label>
-        <small style="display:block;color:var(--color-texto-suave);margin-bottom:.3rem">${escHtml(c.descripcion || '')}</small>
-        <div style="display:flex;gap:.5rem">
-          <input type="text" id="config-${escHtml(c.clave)}" value="${escHtml(c.valor || '')}" />
-          <button class="btn btn-primary" onclick="guardarConfig('${escHtml(c.clave)}')">Guardar</button>
+    contenedor.innerHTML = configs
+      .filter(c => c.clave !== 'bot_activo')
+      .map(c => `
+        <div class="form-group">
+          <label>${escHtml(c.clave)}</label>
+          <small style="display:block;color:var(--color-texto-suave);margin-bottom:.3rem">${escHtml(c.descripcion || '')}</small>
+          <div style="display:flex;gap:.5rem">
+            <input type="text" id="config-${escHtml(c.clave)}" value="${escHtml(c.valor || '')}" />
+            <button class="btn btn-primary" onclick="guardarConfig('${escHtml(c.clave)}')">Guardar</button>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
   } catch (err) {
     mostrarAlerta('error-configuracion', err.message);
   }
