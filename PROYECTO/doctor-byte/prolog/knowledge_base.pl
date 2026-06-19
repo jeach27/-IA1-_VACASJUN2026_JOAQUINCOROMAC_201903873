@@ -1,11 +1,9 @@
 % knowledge_base.pl
-% Base de conocimiento de Doctor Byte para el diagnostico de fallas en computadoras.
-% Usamos hechos, reglas, variables, listas y cortes para representar el conocimiento
-% del sistema experto.
+% Generado automaticamente por kb_generator.py desde knowledge_store.json.
+% Para modificar la base de conocimiento usa la interfaz de administracion.
 
 % =============================================================================
-% SECCION 1: SINTOMAS DISPONIBLES (15 sintomas)
-% Cada hecho sintoma/1 declara un sintoma valido que el usuario puede reportar.
+% SECCION 1: SINTOMAS DISPONIBLES (17 sintomas)
 % =============================================================================
 
 sintoma(pantalla_negra).
@@ -23,10 +21,11 @@ sintoma(teclado_no_responde).
 sintoma(mouse_no_responde).
 sintoma(bateria_no_carga).
 sintoma(ventilador_muy_ruidoso).
+sintoma(sintomas_calificacion_1).
+sintoma(sintomas_calificacion_2).
 
 % =============================================================================
-% SECCION 2: FALLAS DIAGNOSTICABLES (10 fallas)
-% Cada hecho falla/1 declara una falla que el sistema puede diagnosticar.
+% SECCION 2: FALLAS DIAGNOSTICABLES (11 fallas)
 % =============================================================================
 
 falla(falla_ram).
@@ -39,10 +38,10 @@ falla(falla_tarjeta_grafica).
 falla(falla_placa_madre).
 falla(falla_drivers).
 falla(falla_bateria).
+falla(falla_calificacion).
 
 % =============================================================================
-% SECCION 3: RECOMENDACIONES (10 recomendaciones)
-% recomendacion(+Falla, -Texto) asocia una falla con su recomendacion de solucion.
+% SECCION 3: RECOMENDACIONES (11 recomendaciones)
 % =============================================================================
 
 recomendacion(falla_ram,
@@ -65,89 +64,93 @@ recomendacion(falla_drivers,
     'Actualizar o reinstalar los drivers del dispositivo afectado desde el sitio oficial del fabricante.').
 recomendacion(falla_bateria,
     'Calibrar la bateria realizando ciclos de carga completos. Si persiste, reemplazar la bateria por una original del fabricante.').
+recomendacion(falla_calificacion,
+    'recomendacion_calificacion').
 
 % =============================================================================
-% SECCION 4: REGLAS DE INFERENCIA (10+ reglas)
-% diagnostico(+Sintomas, -Falla) infiere una falla a partir de una lista de sintomas.
+% SECCION 4: REGLAS DE INFERENCIA (13 reglas)
 % Usamos member/2 para verificar pertenencia en la lista de sintomas.
-% Usamos cortes (!) para evitar backtracking innecesario cuando la causa es clara.
+% Usamos cortes (!) para evitar backtracking cuando la causa es clara.
 % =============================================================================
 
-% Regla 1: La fuente de poder falla cuando el equipo no enciende y la pantalla esta negra.
-% El corte evita buscar otras causas si se cumplen ambas condiciones.
+% Regla r1: Fuente de poder falla cuando el equipo no enciende y la pantalla esta negra
 diagnostico(Sintomas, falla_fuente_poder) :-
     member(pantalla_negra, Sintomas),
     member(no_enciende, Sintomas),
     !.
 
-% Regla 2: Falla de RAM cuando hay pitidos al arranque sin falla evidente de placa madre.
-% Descartamos la placa madre si los perifericos basicos responden.
+% Regla r2: Falla de RAM cuando hay pitidos al arranque sin falla evidente de placa madre
 diagnostico(Sintomas, falla_ram) :-
     member(sonido_pitidos_arranque, Sintomas),
     \+ member(teclado_no_responde, Sintomas),
     \+ member(mouse_no_responde, Sintomas),
     !.
 
-% Regla 3: Falla de placa madre cuando los pitidos van acompanados de perifericos sin respuesta.
+% Regla r3: Falla de placa madre cuando los pitidos van acompanados de teclado sin respuesta
 diagnostico(Sintomas, falla_placa_madre) :-
     member(sonido_pitidos_arranque, Sintomas),
     member(teclado_no_responde, Sintomas),
     !.
 
-% Regla 4: Falla de placa madre cuando teclado y mouse dejan de responder simultaneamente.
-% El corte evita buscar otras causas al confirmar ambos perifericos inactivos.
+% Regla r4: Falla de placa madre cuando teclado y mouse dejan de responder simultaneamente
 diagnostico(Sintomas, falla_placa_madre) :-
     member(teclado_no_responde, Sintomas),
     member(mouse_no_responde, Sintomas),
     !.
 
-% Regla 5: Sobrecalentamiento del CPU cuando hay calor excesivo y el ventilador esta forzado.
+% Regla r5: Sobrecalentamiento del CPU cuando hay calor excesivo y el ventilador esta forzado
 diagnostico(Sintomas, sobrecalentamiento_cpu) :-
     member(sobrecalentamiento, Sintomas),
     member(ventilador_muy_ruidoso, Sintomas),
     !.
 
-% Regla 6: Falla de tarjeta grafica cuando la pantalla se apaga por calor pero el equipo
-% sigue encendido. Descartamos fuente de poder porque el equipo responde.
+% Regla r6: Falla de tarjeta grafica cuando la pantalla se apaga por calor pero el equipo sigue encendido
 diagnostico(Sintomas, falla_tarjeta_grafica) :-
     member(pantalla_negra, Sintomas),
     member(sobrecalentamiento, Sintomas),
     \+ member(no_enciende, Sintomas),
     !.
 
-% Regla 7: Falla del sistema operativo cuando hay pantalla azul con reinicios inesperados.
+% Regla r7: Falla del sistema operativo cuando hay pantalla azul con reinicios inesperados
 diagnostico(Sintomas, falla_sistema_operativo) :-
     member(pantalla_azul_muerte, Sintomas),
     member(reinicio_inesperado, Sintomas),
     !.
 
-% Regla 8: Falla de disco duro cuando el sistema no reconoce el dispositivo de almacenamiento.
+% Regla r8: Falla de disco duro cuando el sistema no reconoce el dispositivo de almacenamiento
 diagnostico(Sintomas, falla_disco_duro) :-
     member(no_reconoce_disco, Sintomas),
     !.
 
-% Regla 9: Virus o malware cuando la lentitud extrema coincide con aplicaciones que se cierran.
+% Regla r9: Virus o malware cuando la lentitud extrema coincide con aplicaciones que se cierran
 diagnostico(Sintomas, virus_malware) :-
     member(lentitud_extrema, Sintomas),
     member(aplicaciones_se_cierran_solas, Sintomas),
     !.
 
-% Regla 10: Falla de drivers cuando al menos uno de los sintomas tipicos de drivers esta presente.
-% Usamos una lista de sintomas conocidos de drivers y la interseccion para verificar.
+% Regla r10a: Falla de drivers cuando hay ausencia de sonido
 diagnostico(Sintomas, falla_drivers) :-
-    SintomasDrivers = [sin_sonido, red_no_conecta],
-    intersection(Sintomas, SintomasDrivers, Coincidencias),
-    Coincidencias \= [],
+    member(sin_sonido, Sintomas),
     !.
 
-% Regla 11: Falla de bateria cuando la bateria no carga.
+% Regla r10b: Falla de drivers cuando la red no conecta
+diagnostico(Sintomas, falla_drivers) :-
+    member(red_no_conecta, Sintomas),
+    !.
+
+% Regla r11: Falla de bateria cuando la bateria no carga
 diagnostico(Sintomas, falla_bateria) :-
     member(bateria_no_carga, Sintomas),
     !.
 
+% Regla r275399: calificacion
+diagnostico(Sintomas, falla_calificacion) :-
+    member(sintomas_calificacion_1, Sintomas),
+    member(sintomas_calificacion_2, Sintomas),
+    !.
+
 % =============================================================================
 % SECCION 5: PREDICADOS UTILITARIOS
-% Estos predicados son usados por el backend para consultar la base de conocimiento.
 % =============================================================================
 
 % listar_sintomas(-Sintomas)

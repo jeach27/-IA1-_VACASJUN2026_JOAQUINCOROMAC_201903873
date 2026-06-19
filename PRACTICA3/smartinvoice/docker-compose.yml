@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-smartinvoice}
+      POSTGRES_USER: ${POSTGRES_USER:-smartuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-smartpass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-smartuser} -d ${POSTGRES_DB:-smartinvoice}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+      - reports_data:/app/reports
+      - screenshots_data:/app/screenshots
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-smartuser}:${POSTGRES_PASSWORD:-smartpass}@db:5432/${POSTGRES_DB:-smartinvoice}
+
+  frontend:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  uploads_data:
+  reports_data:
+  screenshots_data:
