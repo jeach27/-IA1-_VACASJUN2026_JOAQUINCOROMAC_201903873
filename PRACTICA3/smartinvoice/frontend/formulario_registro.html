@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInvoice - Formulario de Registro (Sistema Simulado RPA)</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #F4F6F7; padding: 40px 20px; }
+        .contenedor { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); overflow: hidden; }
+        .cabecera { background: #2C3E50; color: white; padding: 20px 28px; }
+        .cabecera h1 { font-size: 18px; margin: 0; }
+        .cabecera p { font-size: 13px; color: rgba(255,255,255,0.7); margin: 4px 0 0; }
+        .cuerpo { padding: 28px; }
+        .grupo { margin-bottom: 18px; }
+        .etiqueta { display: block; font-size: 12px; font-weight: 600; color: #7F8C8D; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .campo { width: 100%; padding: 9px 12px; border: 1px solid #D5D8DC; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+        .campo:focus { outline: none; border-color: #3498DB; }
+        .fila { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+        .boton { background: #27AE60; color: white; border: none; padding: 11px 28px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
+        .boton:hover { background: #229954; }
+        .resultado { margin-top: 20px; padding: 14px; border-radius: 6px; display: none; font-size: 14px; }
+        .resultado.exito { background: #D5F5E3; color: #1E8449; border-left: 4px solid #27AE60; }
+        .pie { text-align: center; padding: 14px; font-size: 12px; color: #7F8C8D; border-top: 1px solid #ECF0F1; }
+    </style>
+</head>
+<body>
+<div class="contenedor">
+    <div class="cabecera">
+        <h1>Sistema de Registro de Facturas</h1>
+        <p>Formulario simulado para automatizacion RPA - SmartInvoice</p>
+    </div>
+    <div class="cuerpo">
+        <form id="form-registro">
+            <div class="grupo">
+                <label class="etiqueta" for="num_factura">Numero de Factura</label>
+                <input class="campo" type="text" id="num_factura" name="num_factura" placeholder="Ej: FAC-00001">
+            </div>
+            <div class="grupo">
+                <label class="etiqueta" for="fecha_factura">Fecha de la Factura</label>
+                <input class="campo" type="text" id="fecha_factura" name="fecha_factura" placeholder="DD/MM/YYYY">
+            </div>
+            <div class="grupo">
+                <label class="etiqueta" for="proveedor">Proveedor</label>
+                <input class="campo" type="text" id="proveedor" name="proveedor" placeholder="Nombre del proveedor">
+            </div>
+            <div class="grupo">
+                <label class="etiqueta" for="nit">NIT del Proveedor</label>
+                <input class="campo" type="text" id="nit" name="nit" placeholder="Ej: 12345678-9">
+            </div>
+            <div class="fila">
+                <div class="grupo">
+                    <label class="etiqueta" for="subtotal">Subtotal</label>
+                    <input class="campo" type="text" id="subtotal" name="subtotal" placeholder="0.00">
+                </div>
+                <div class="grupo">
+                    <label class="etiqueta" for="impuesto">IVA (12%)</label>
+                    <input class="campo" type="text" id="impuesto" name="impuesto" placeholder="0.00">
+                </div>
+                <div class="grupo">
+                    <label class="etiqueta" for="total">Total</label>
+                    <input class="campo" type="text" id="total" name="total" placeholder="0.00">
+                </div>
+            </div>
+            <button type="button" class="boton" id="btn_registrar" onclick="registrar()">Registrar Factura</button>
+        </form>
+
+        <div class="resultado exito" id="resultado">
+            Factura registrada correctamente en el sistema simulado.
+        </div>
+    </div>
+    <div class="pie">
+        SmartInvoice - Sistema simulado para demostracion de automatizacion RPA
+    </div>
+</div>
+<script>
+function registrar() {
+    document.getElementById("resultado").style.display = "block";
+    document.getElementById("resultado").textContent =
+        "Factura " + document.getElementById("num_factura").value + " registrada correctamente en el sistema simulado.";
+}
+</script>
+</body>
+</html>

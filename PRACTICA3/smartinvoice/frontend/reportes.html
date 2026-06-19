@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInvoice - Reportes</title>
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-logo">SmartInvoice</div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard.html">Panel Principal</a>
+            <a href="/facturas.html">Facturas</a>
+            <a href="/proveedores.html">Proveedores</a>
+            <a href="/bitacora.html">Bitacora</a>
+            <a href="/reportes.html" class="activo">Reportes</a>
+        </nav>
+        <div class="sidebar-footer">IA1 - USAC 2026</div>
+    </aside>
+
+    <div class="contenido-principal">
+        <div class="topbar">
+            <span class="topbar-titulo">Reportes Administrativos</span>
+            <div class="topbar-usuario">
+                <span id="info-usuario">-</span>
+                <button class="btn btn-secundario" onclick="cerrarSesion()" style="padding:5px 12px;font-size:12px;">Cerrar Sesion</button>
+            </div>
+        </div>
+
+        <div class="pagina">
+            <div id="alerta-reportes" class="alerta"></div>
+
+            <div class="tarjeta mb-16">
+                <div class="tarjeta-cabecera">
+                    <span class="tarjeta-titulo">Generar Nuevo Reporte</span>
+                </div>
+                <div class="tarjeta-cuerpo">
+                    <div class="barra-filtros">
+                        <div class="form-grupo">
+                            <label class="form-etiqueta">Formato del Reporte</label>
+                            <select class="form-select" id="formato-reporte">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel (XLSX)</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn btn-exito" id="btn-generar" onclick="generarReporte()">Generar Reporte</button>
+                        </div>
+                    </div>
+                    <div class="texto-ayuda">El reporte incluira todas las facturas registradas en el sistema.</div>
+                </div>
+            </div>
+
+            <div class="tarjeta">
+                <div class="tarjeta-cabecera">
+                    <span class="tarjeta-titulo">Reportes Generados</span>
+                    <button class="btn btn-secundario" onclick="cargarReportes()" style="padding:5px 12px;font-size:12px;">Actualizar</button>
+                </div>
+                <div class="tabla-contenedor">
+                    <table class="tabla">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Formato</th>
+                                <th>Fecha Generacion</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-reportes-body">
+                            <tr><td colspan="5" class="cargador">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal enviar por correo -->
+<div class="modal-fondo" id="modal-correo">
+    <div class="modal-caja">
+        <div class="modal-cabecera">
+            <span class="modal-titulo">Enviar Reporte por Correo</span>
+            <button class="modal-cerrar" onclick="cerrarModalCorreo()">x</button>
+        </div>
+        <div class="modal-cuerpo">
+            <form id="form-enviar-correo" onsubmit="enviarCorreo(event)">
+                <div class="form-grupo">
+                    <label class="form-etiqueta" for="correo-destinatario">Destinatario *</label>
+                    <input class="form-input" type="email" id="correo-destinatario" required placeholder="correo@ejemplo.com">
+                </div>
+                <div class="form-grupo">
+                    <label class="form-etiqueta" for="correo-asunto">Asunto</label>
+                    <input class="form-input" type="text" id="correo-asunto" placeholder="Reporte SmartInvoice">
+                </div>
+                <div class="form-grupo">
+                    <label class="form-etiqueta" for="correo-mensaje">Mensaje</label>
+                    <textarea class="form-textarea" id="correo-mensaje" placeholder="Se adjunta el reporte solicitado."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-pie">
+            <button class="btn btn-secundario" onclick="cerrarModalCorreo()">Cancelar</button>
+            <button class="btn btn-primario" id="btn-enviar-correo" onclick="enviarCorreo(event)">Enviar</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/reportes.js"></script>
+<script>
+verificarAutenticacion();
+mostrarInfoUsuario();
+cargarReportes();
+</script>
+</body>
+</html>
