@@ -3,11 +3,18 @@ from typing import Optional, Dict, Any, List
 
 
 def _limpiar_numero(texto: str) -> Optional[float]:
-    """Convierte un string de numero con formato monetario a float."""
+    """Convierte un string de numero con formato monetario a float.
+    Soporta formato GT (1,892.86) y europeo (1.892,86)."""
     if not texto:
         return None
-    limpio = re.sub(r"[Q$,\s]", "", texto)
-    limpio = limpio.replace(",", ".")
+    limpio = re.sub(r"[Q$\s]", "", texto).strip()
+    if "," in limpio and "." in limpio:
+        if limpio.index(",") < limpio.index("."):
+            limpio = limpio.replace(",", "")
+        else:
+            limpio = limpio.replace(".", "").replace(",", ".")
+    elif "," in limpio:
+        limpio = limpio.replace(",", ".")
     try:
         return float(limpio)
     except ValueError:

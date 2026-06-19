@@ -9,8 +9,7 @@ RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     poppler-utils \
     wget \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+    curl
 
 WORKDIR /app
 
@@ -19,6 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN python -m playwright install chromium
 RUN python -m playwright install-deps chromium
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY . .
 

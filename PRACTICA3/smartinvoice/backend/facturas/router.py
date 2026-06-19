@@ -1,5 +1,6 @@
 import os
 import shutil
+import time
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List
@@ -9,6 +10,7 @@ from auth.utils import get_current_user
 from facturas.schemas import FacturaResponse, FacturaDetalleResponse, EstadoUpdate, CargaResponse, ItemFacturaResponse
 from ocr.procesador import extraer_texto
 from ocr.extractor import extraer_campos
+from rpa.automatizacion import ejecutar_automatizacion
 
 router = APIRouter(prefix="/facturas", tags=["Facturas"])
 
@@ -43,7 +45,6 @@ def cargar_factura(
 
     if os.path.exists(ruta_archivo):
         base, ext = os.path.splitext(archivo.filename)
-        import time
         nombre_unico = f"{base}_{int(time.time())}{ext}"
         ruta_archivo = os.path.join(UPLOAD_DIR, nombre_unico)
     else:
@@ -166,8 +167,6 @@ def ejecutar_rpa(
     factura = db.query(models.Factura).filter(models.Factura.id == factura_id).first()
     if not factura:
         raise HTTPException(status_code=404, detail="Factura no encontrada")
-
-    from rpa.automatizacion import ejecutar_automatizacion
 
     datos = {
         "numero_factura": factura.numero_factura or "",

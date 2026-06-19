@@ -1,7 +1,7 @@
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from sqlalchemy import text
 
@@ -16,31 +16,8 @@ from facturas.router import router as facturas_router
 from bitacora.router import router as bitacora_router
 from reportes.router import router as reportes_router
 
-app = FastAPI(
-    title="SmartInvoice API",
-    description="API REST para el sistema de procesamiento inteligente de facturas",
-    version="1.0.0",
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.include_router(auth_router)
-app.include_router(proveedores_router)
-app.include_router(facturas_router)
-app.include_router(bitacora_router)
-app.include_router(reportes_router)
-
-
 def crear_tablas_y_admin():
-    """Crea las tablas en la base de datos y el usuario admin inicial si no existe."""
     Base.metadata.create_all(bind=engine)
-
     db = SessionLocal()
     try:
         admin = db.query(models.Usuario).filter(models.Usuario.username == "admin").first()
@@ -58,9 +35,32 @@ def crear_tablas_y_admin():
         db.close()
 
 
-@app.on_event("startup")
-def startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     crear_tablas_y_admin()
+    yield
+
+
+app = FastAPI(
+    title="SmartInvoice API",
+    description="API REST para el sistema de procesamiento inteligente de facturas",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth_router)
+app.include_router(proveedores_router)
+app.include_router(facturas_router)
+app.include_router(bitacora_router)
+app.include_router(reportes_router)
 
 
 @app.get("/")
