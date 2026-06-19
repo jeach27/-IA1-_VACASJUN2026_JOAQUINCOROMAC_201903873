@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInvoice - Proveedores</title>
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-logo">SmartInvoice</div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard.html">Panel Principal</a>
+            <a href="/facturas.html">Facturas</a>
+            <a href="/proveedores.html" class="activo">Proveedores</a>
+            <a href="/bitacora.html">Bitacora</a>
+            <a href="/reportes.html">Reportes</a>
+        </nav>
+        <div class="sidebar-footer">IA1 - USAC 2026</div>
+    </aside>
+
+    <div class="contenido-principal">
+        <div class="topbar">
+            <span class="topbar-titulo">Gestion de Proveedores</span>
+            <div class="topbar-usuario">
+                <span id="info-usuario">-</span>
+                <button class="btn btn-secundario" onclick="cerrarSesion()" style="padding:5px 12px;font-size:12px;">Cerrar Sesion</button>
+            </div>
+        </div>
+
+        <div class="pagina">
+            <div id="alerta-proveedores" class="alerta"></div>
+
+            <div class="tarjeta">
+                <div class="tarjeta-cabecera">
+                    <span class="tarjeta-titulo">Lista de Proveedores</span>
+                    <button class="btn btn-exito" onclick="abrirNuevoProveedor()">Nuevo Proveedor</button>
+                </div>
+                <div class="tabla-contenedor">
+                    <table class="tabla">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>NIT</th>
+                                <th>Email</th>
+                                <th>Telefono</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-proveedores-body">
+                            <tr><td colspan="6" class="cargador">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal proveedor -->
+<div class="modal-fondo" id="modal-proveedor">
+    <div class="modal-caja">
+        <div class="modal-cabecera">
+            <span class="modal-titulo" id="modal-prov-titulo">Nuevo Proveedor</span>
+            <button class="modal-cerrar" onclick="cerrarModalProveedor()">x</button>
+        </div>
+        <div class="modal-cuerpo">
+            <form id="form-proveedor" onsubmit="guardarProveedor(event)">
+                <div class="form-grupo">
+                    <label class="form-etiqueta" for="prov-nombre">Nombre o Razon Social *</label>
+                    <input class="form-input" type="text" id="prov-nombre" required>
+                </div>
+                <div class="form-grupo">
+                    <label class="form-etiqueta" for="prov-nit">NIT *</label>
+                    <input class="form-input" type="text" id="prov-nit" required>
+                </div>
+                <div class="form-grupo">
+                    <label class="form-etiqueta" for="prov-direccion">Direccion</label>
+                    <input class="form-input" type="text" id="prov-direccion">
+                </div>
+                <div class="form-grupo">
+                    <label class="form-etiqueta" for="prov-email">Email</label>
+                    <input class="form-input" type="email" id="prov-email">
+                </div>
+                <div class="form-grupo">
+                    <label class="form-etiqueta" for="prov-telefono">Telefono</label>
+                    <input class="form-input" type="text" id="prov-telefono">
+                </div>
+            </form>
+        </div>
+        <div class="modal-pie">
+            <button class="btn btn-secundario" onclick="cerrarModalProveedor()">Cancelar</button>
+            <button class="btn btn-primario" id="btn-guardar-prov" onclick="guardarProveedor(event)">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/proveedores.js"></script>
+<script>
+verificarAutenticacion();
+mostrarInfoUsuario();
+cargarProveedores();
+</script>
+</body>
+</html>

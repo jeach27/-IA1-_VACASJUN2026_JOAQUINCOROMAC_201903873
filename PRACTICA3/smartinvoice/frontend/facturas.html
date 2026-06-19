@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInvoice - Facturas</title>
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-logo">SmartInvoice</div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard.html">Panel Principal</a>
+            <a href="/facturas.html" class="activo">Facturas</a>
+            <a href="/proveedores.html">Proveedores</a>
+            <a href="/bitacora.html">Bitacora</a>
+            <a href="/reportes.html">Reportes</a>
+        </nav>
+        <div class="sidebar-footer">IA1 - USAC 2026</div>
+    </aside>
+
+    <div class="contenido-principal">
+        <div class="topbar">
+            <span class="topbar-titulo">Gestion de Facturas</span>
+            <div class="topbar-usuario">
+                <span id="info-usuario">-</span>
+                <button class="btn btn-secundario" onclick="cerrarSesion()" style="padding:5px 12px;font-size:12px;">Cerrar Sesion</button>
+            </div>
+        </div>
+
+        <div class="pagina">
+            <div class="tarjeta mb-16">
+                <div class="tarjeta-cabecera">
+                    <span class="tarjeta-titulo">Cargar Nueva Factura</span>
+                </div>
+                <div class="tarjeta-cuerpo">
+                    <div id="alerta-carga" class="alerta"></div>
+                    <form id="form-carga" onsubmit="subirFactura(event)">
+                        <div class="form-grupo">
+                            <label class="form-etiqueta" for="archivo-factura">Archivo de Factura (PDF, JPG, JPEG, PNG)</label>
+                            <input class="form-archivo" type="file" id="archivo-factura" accept=".pdf,.jpg,.jpeg,.png" required>
+                            <div class="texto-ayuda">El sistema extraera automaticamente la informacion de la factura usando OCR.</div>
+                        </div>
+                        <button type="submit" class="btn btn-exito" id="btn-subir">Cargar y Procesar</button>
+                    </form>
+                    <div id="resultado-carga" class="mt-16"></div>
+                </div>
+            </div>
+
+            <div class="tarjeta">
+                <div class="tarjeta-cabecera">
+                    <span class="tarjeta-titulo">Facturas Registradas</span>
+                    <button class="btn btn-secundario" onclick="cargarFacturas()" style="padding:5px 12px;font-size:12px;">Actualizar</button>
+                </div>
+                <div class="tabla-contenedor">
+                    <table class="tabla">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Num. Factura</th>
+                                <th>Fecha</th>
+                                <th>Proveedor</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Fecha Carga</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-facturas-body">
+                            <tr><td colspan="8" class="cargador">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal detalle factura -->
+<div class="modal-fondo" id="modal-factura">
+    <div class="modal-caja">
+        <div class="modal-cabecera">
+            <span class="modal-titulo" id="modal-factura-titulo">Detalle de Factura</span>
+            <button class="modal-cerrar" onclick="cerrarModalFactura()">x</button>
+        </div>
+        <div class="modal-cuerpo" id="modal-factura-contenido"></div>
+        <div class="modal-pie">
+            <button class="btn btn-secundario" onclick="cerrarModalFactura()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/facturas.js"></script>
+<script>
+verificarAutenticacion();
+mostrarInfoUsuario();
+cargarFacturas();
+</script>
+</body>
+</html>

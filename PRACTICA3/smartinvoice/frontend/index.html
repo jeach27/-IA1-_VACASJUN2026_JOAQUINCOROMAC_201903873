@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInvoice - Iniciar Sesion</title>
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+<div class="login-pagina">
+    <div class="login-caja">
+        <div class="login-titulo">SmartInvoice</div>
+        <div class="login-subtitulo">Sistema de procesamiento inteligente de facturas</div>
+
+        <div id="alerta-login" class="alerta"></div>
+
+        <form id="form-login" onsubmit="iniciarSesion(event)">
+            <div class="form-grupo">
+                <label class="form-etiqueta" for="usuario">Usuario</label>
+                <input class="form-input" type="text" id="usuario" name="usuario" required autocomplete="username" placeholder="Ingrese su usuario">
+            </div>
+            <div class="form-grupo">
+                <label class="form-etiqueta" for="contrasena">Contrasena</label>
+                <input class="form-input" type="password" id="contrasena" name="contrasena" required autocomplete="current-password" placeholder="Ingrese su contrasena">
+            </div>
+            <button type="submit" class="btn btn-primario btn-bloque" id="btn-login">Ingresar al sistema</button>
+        </form>
+
+        <div style="margin-top:20px;font-size:12px;color:#7F8C8D;text-align:center;">
+            Universidad San Carlos de Guatemala - Facultad de Ingenieria
+        </div>
+    </div>
+</div>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+    if (obtenerToken()) {
+        window.location.href = "/dashboard.html";
+    }
+</script>
+</body>
+</html>

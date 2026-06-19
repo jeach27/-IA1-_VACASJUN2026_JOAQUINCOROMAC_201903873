@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInvoice - Dashboard</title>
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-logo">SmartInvoice</div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard.html" class="activo">Panel Principal</a>
+            <a href="/facturas.html">Facturas</a>
+            <a href="/proveedores.html">Proveedores</a>
+            <a href="/bitacora.html">Bitacora</a>
+            <a href="/reportes.html">Reportes</a>
+        </nav>
+        <div class="sidebar-footer">IA1 - USAC 2026</div>
+    </aside>
+
+    <div class="contenido-principal">
+        <div class="topbar">
+            <span class="topbar-titulo">Panel Principal</span>
+            <div class="topbar-usuario">
+                <span id="info-usuario">-</span>
+                <button class="btn btn-secundario" onclick="cerrarSesion()" style="padding:5px 12px;font-size:12px;">Cerrar Sesion</button>
+            </div>
+        </div>
+
+        <div class="pagina">
+            <div class="grid-estadisticas">
+                <div class="stat-caja">
+                    <div class="stat-numero" id="stat-total">-</div>
+                    <div class="stat-etiqueta">Total Facturas</div>
+                </div>
+                <div class="stat-caja procesado">
+                    <div class="stat-numero" id="stat-procesado">-</div>
+                    <div class="stat-etiqueta">Procesadas</div>
+                </div>
+                <div class="stat-caja pendiente">
+                    <div class="stat-numero" id="stat-pendiente">-</div>
+                    <div class="stat-etiqueta">Pendientes</div>
+                </div>
+                <div class="stat-caja error">
+                    <div class="stat-numero" id="stat-error">-</div>
+                    <div class="stat-etiqueta">Con Error</div>
+                </div>
+                <div class="stat-caja rechazado">
+                    <div class="stat-numero" id="stat-rechazado">-</div>
+                    <div class="stat-etiqueta">Rechazadas</div>
+                </div>
+            </div>
+
+            <div class="tarjeta">
+                <div class="tarjeta-cabecera">
+                    <span class="tarjeta-titulo">Ultimas 10 Facturas Procesadas</span>
+                    <a href="/facturas.html" class="btn btn-primario" style="padding:6px 14px;font-size:12px;">Ver todas</a>
+                </div>
+                <div class="tabla-contenedor">
+                    <table class="tabla">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Num. Factura</th>
+                                <th>Proveedor</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Fecha Carga</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-recientes-body">
+                            <tr><td colspan="6" class="cargador">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+verificarAutenticacion();
+mostrarInfoUsuario();
+
+async function cargarDashboard() {
+    try {
+        const facturas = await get("/facturas/");
+
+        document.getElementById("stat-total").textContent = facturas.length;
+        document.getElementById("stat-procesado").textContent = facturas.filter(f => f.estado === "Procesado").length;
+        document.getElementById("stat-pendiente").textContent = facturas.filter(f => f.estado === "Pendiente").length;
+        document.getElementById("stat-error").textContent = facturas.filter(f => f.estado === "Error").length;
+        document.getElementById("stat-rechazado").textContent = facturas.filter(f => f.estado === "Rechazado").length;
+
+        const recientes = facturas.slice(0, 10);
+        const tbody = document.getElementById("tabla-recientes-body");
+        if (recientes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="sin-datos">No hay facturas registradas aun</td></tr>';
+            return;
+        }
+        tbody.innerHTML = recientes.map(f => `
+            <tr>
+                <td>${f.id}</td>
+                <td>${f.numero_factura || "-"}</td>
+                <td>${f.proveedor_nombre || "-"}</td>
+                <td>${formatearMoneda(f.total)}</td>
+                <td>${badgeEstado(f.estado)}</td>
+                <td>${formatearFecha(f.fecha_carga)}</td>
+            </tr>
+        `).join("");
+    } catch (err) {
+        console.error("Error cargando dashboard:", err);
+    }
+}
+
+cargarDashboard();
+</script>
+</body>
+</html>
