@@ -143,11 +143,70 @@ header p {
 .legend-path    { background: #2980b9; }
 .legend-explored{ background: #f1c40f; }
 
+/* Controles de tamano */
+.size-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.size-controls label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.82rem;
+    gap: 3px;
+}
+
+.size-controls input[type="number"] {
+    padding: 6px 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    width: 100%;
+}
+
+.size-buttons {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.btn-secondary {
+    flex: 1;
+    padding: 7px 8px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background: #f0f0f0;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: bold;
+    transition: background 0.15s;
+}
+
+.btn-secondary:hover { background: #ddd; }
+.btn-generate { border-color: #16a085; color: #16a085; }
+.btn-generate:hover { background: #e8f8f5; }
+
+/* Toggle de animacion */
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.toggle-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
 /* Botones de ejecucion */
 .control-buttons {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .btn-run {
@@ -155,16 +214,19 @@ header p {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: bold;
     transition: opacity 0.15s;
+    color: #fff;
 }
 
 .btn-run:hover { opacity: 0.85; }
 
-#btn-bfs  { background: #2980b9; color: #fff; }
-#btn-dfs  { background: #8e44ad; color: #fff; }
-#btn-both { background: #16a085; color: #fff; }
+.btn-bfs   { background: #2980b9; }
+.btn-dfs   { background: #8e44ad; }
+.btn-astar { background: #e67e22; }
+.btn-both  { background: #16a085; }
+.btn-all   { background: #2c3e50; }
 
 /* Panel de error */
 #error-panel {
@@ -207,13 +269,59 @@ header p {
 /* Paneles de resultado */
 .results-row {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
 }
 
 .result-panel {
     flex: 1;
-    min-width: 140px;
+    min-width: 120px;
+}
+
+/* Tabla de comparacion estadistica */
+.comparison h3 {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    color: #1a1a2e;
+}
+
+table.comparison {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+}
+
+table.comparison th,
+table.comparison td {
+    border: 1px solid #ddd;
+    padding: 6px 10px;
+    text-align: center;
+}
+
+table.comparison th {
+    background: #1a1a2e;
+    color: #fff;
+}
+
+table.comparison tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+table.comparison td.best-value {
+    background: #d5f5e3;
+    color: #1e8449;
+    font-weight: bold;
+}
+
+.comparison-note {
+    font-size: 0.78rem;
+    color: #666;
+    margin-top: 6px;
+}
+
+#comparison-section:empty,
+#comparison-table:empty {
+    display: none;
 }
 
 .result-card {

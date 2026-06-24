@@ -10,13 +10,29 @@
 
 <header>
     <h1>RoboMaze</h1>
-    <p>Sistema de busqueda de rutas en laberintos - BFS y DFS</p>
+    <p>Sistema de busqueda de rutas en laberintos - BFS, DFS y A*</p>
 </header>
 
 <main class="main-layout">
 
-    <!-- Panel de configuracion y controles -->
+    <!-- Panel izquierdo: configuracion y controles -->
     <aside class="side-panel">
+
+        <div class="card">
+            <h2>Tamano del laberinto</h2>
+            <div class="size-controls">
+                <label>Filas (5-25)
+                    <input id="input-rows" type="number" min="5" max="25" value="10" />
+                </label>
+                <label>Columnas (5-25)
+                    <input id="input-cols" type="number" min="5" max="25" value="10" />
+                </label>
+                <div class="size-buttons">
+                    <button id="btn-create" class="btn-secondary">Crear vacio</button>
+                    <button id="btn-generate" class="btn-secondary btn-generate">Generar aleatorio</button>
+                </div>
+            </div>
+        </div>
 
         <div class="card">
             <h2>Laberinto predefinido</h2>
@@ -37,39 +53,31 @@
         <div class="card">
             <h2>Leyenda</h2>
             <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color legend-free"></div>
-                    <span>Celda libre</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color legend-obstacle"></div>
-                    <span>Obstaculo</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color legend-start"></div>
-                    <span>Posicion inicial</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color legend-end"></div>
-                    <span>Posicion destino</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color legend-path"></div>
-                    <span>Ruta encontrada</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color legend-explored"></div>
-                    <span>Nodo explorado</span>
-                </div>
+                <div class="legend-item"><div class="legend-color legend-free"></div><span>Celda libre</span></div>
+                <div class="legend-item"><div class="legend-color legend-obstacle"></div><span>Obstaculo</span></div>
+                <div class="legend-item"><div class="legend-color legend-start"></div><span>Posicion inicial</span></div>
+                <div class="legend-item"><div class="legend-color legend-end"></div><span>Posicion destino</span></div>
+                <div class="legend-item"><div class="legend-color legend-path"></div><span>Ruta encontrada</span></div>
+                <div class="legend-item"><div class="legend-color legend-explored"></div><span>Nodo explorado</span></div>
             </div>
+        </div>
+
+        <div class="card">
+            <h2>Opciones</h2>
+            <label class="toggle-label">
+                <input id="toggle-animation" type="checkbox" />
+                Animar exploracion de nodos
+            </label>
         </div>
 
         <div class="card">
             <h2>Ejecutar algoritmos</h2>
             <div class="control-buttons">
-                <button id="btn-bfs" class="btn-run">Ejecutar BFS</button>
-                <button id="btn-dfs" class="btn-run">Ejecutar DFS</button>
-                <button id="btn-both" class="btn-run">Ejecutar BFS y DFS</button>
+                <button id="btn-bfs"   class="btn-run btn-bfs">Ejecutar BFS</button>
+                <button id="btn-dfs"   class="btn-run btn-dfs">Ejecutar DFS</button>
+                <button id="btn-astar" class="btn-run btn-astar">Ejecutar A*</button>
+                <button id="btn-both"  class="btn-run btn-both">BFS y DFS</button>
+                <button id="btn-all"   class="btn-run btn-all">Comparar los tres</button>
             </div>
         </div>
 
@@ -86,11 +94,16 @@
         </div>
 
         <div class="card">
-            <h2>Resultados</h2>
+            <h2>Resultados individuales</h2>
             <div class="results-row">
                 <div class="result-panel" id="result-bfs"></div>
                 <div class="result-panel" id="result-dfs"></div>
+                <div class="result-panel" id="result-astar"></div>
             </div>
+        </div>
+
+        <div class="card" id="comparison-section">
+            <div id="comparison-table"></div>
         </div>
 
     </section>
