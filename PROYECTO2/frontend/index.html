@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Warehouse - Simulacion de Bodega Inteligente</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Smart Warehouse</h1>
+        <p class="subtitulo">Simulacion de Bodega Inteligente con Inferencia en Prolog</p>
+    </header>
+
+    <main>
+        <section class="panel-controles">
+            <div class="grupo-botones">
+                <button id="btn-iniciar" onclick="iniciarSimulacion()">Iniciar</button>
+                <button id="btn-paso" onclick="ejecutarPaso()" disabled>Paso a Paso</button>
+                <button id="btn-pausar" onclick="pausarSimulacion()" disabled>Pausar</button>
+                <button id="btn-reiniciar" onclick="reiniciarSimulacion()" disabled>Reiniciar</button>
+            </div>
+            <div class="grupo-modo">
+                <label>Modo:</label>
+                <label>
+                    <input type="radio" name="modo" value="automatico" checked onchange="cambiarModo('automatico')">
+                    Automatico
+                </label>
+                <label>
+                    <input type="radio" name="modo" value="paso_a_paso" onchange="cambiarModo('paso_a_paso')">
+                    Paso a Paso
+                </label>
+                <label class="velocidad-label">
+                    Velocidad (ms):
+                    <input type="number" id="velocidad" value="600" min="100" max="3000" step="100">
+                </label>
+            </div>
+        </section>
+
+        <section class="contenedor-principal">
+            <div class="columna-mapa">
+                <h2>Mapa de la Bodega</h2>
+                <div id="mapa" class="mapa-grid"></div>
+                <div class="leyenda">
+                    <span class="leyenda-item"><span class="celda-muestra robot-muestra">R</span> Robot</span>
+                    <span class="leyenda-item"><span class="celda-muestra paquete-muestra">P</span> Paquete</span>
+                    <span class="leyenda-item"><span class="celda-muestra zona-muestra">E</span> Zona de Entrega</span>
+                    <span class="leyenda-item"><span class="celda-muestra obstaculo-muestra">X</span> Obstaculo</span>
+                    <span class="leyenda-item"><span class="celda-muestra vacia-muestra">.</span> Vacia</span>
+                    <span class="leyenda-item"><span class="celda-muestra robot-paquete-muestra">R+P</span> Robot con Paquete</span>
+                </div>
+            </div>
+
+            <div class="columna-lateral">
+                <section class="panel-estadisticas">
+                    <h2>Estadisticas</h2>
+                    <table class="tabla-stats">
+                        <tr>
+                            <td>Movimientos:</td>
+                            <td id="stat-movimientos">0</td>
+                        </tr>
+                        <tr>
+                            <td>Entregas:</td>
+                            <td id="stat-entregas">0</td>
+                        </tr>
+                        <tr>
+                            <td>Pendientes:</td>
+                            <td id="stat-pendientes">5</td>
+                        </tr>
+                        <tr>
+                            <td>Tiempo:</td>
+                            <td id="stat-tiempo">0s</td>
+                        </tr>
+                        <tr>
+                            <td>Eficiencia:</td>
+                            <td id="stat-eficiencia">0%</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section class="panel-log">
+                    <h2>Registro de Acciones</h2>
+                    <div id="log-acciones" class="log-contenido"></div>
+                </section>
+
+                <section class="panel-estado-robots">
+                    <h2>Estado de Robots</h2>
+                    <div id="estado-robots"></div>
+                </section>
+            </div>
+        </section>
+
+        <section class="panel-historial">
+            <h2>Historial de Simulaciones</h2>
+            <table class="tabla-historial" id="tabla-historial">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Movimientos</th>
+                        <th>Entregas</th>
+                        <th>Tiempo (s)</th>
+                        <th>Resultado</th>
+                    </tr>
+                </thead>
+                <tbody id="historial-body">
+                    <tr>
+                        <td colspan="6" class="sin-datos">Sin simulaciones registradas</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <div id="mensaje-estado" class="mensaje-estado oculto"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
