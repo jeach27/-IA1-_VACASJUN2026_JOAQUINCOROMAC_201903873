@@ -41,12 +41,14 @@ def bfs(maze: Maze) -> SearchResult:
 
     parents = {start: None}
     explored_nodes = 0
+    explored_order = []
 
     found = False
 
     while queue:
         current = queue.popleft()
         explored_nodes += 1
+        explored_order.append(list(current))
 
         if current == end:
             found = True
@@ -68,6 +70,7 @@ def bfs(maze: Maze) -> SearchResult:
             explored_nodes=explored_nodes,
             execution_time_ms=execution_time_ms,
             found=False,
+            explored_order=explored_order,
         )
 
     path = _reconstruct_path(parents, start, end)
@@ -78,6 +81,7 @@ def bfs(maze: Maze) -> SearchResult:
         explored_nodes=explored_nodes,
         execution_time_ms=execution_time_ms,
         found=True,
+        explored_order=explored_order,
     )
 
 

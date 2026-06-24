@@ -23,12 +23,15 @@ class SearchResult:
         explored_nodes: int,
         execution_time_ms: float,
         found: bool,
+        explored_order: list = None,
     ):
         self.algorithm = algorithm
         self.path = path
         self.explored_nodes = explored_nodes
         self.execution_time_ms = execution_time_ms
         self.found = found
+        # Lista ordenada de nodos procesados; usada por el frontend para animar.
+        self.explored_order = explored_order if explored_order is not None else []
 
     def to_dict(self) -> dict:
         """Convierte el resultado a un diccionario serializable en JSON."""
@@ -39,4 +42,5 @@ class SearchResult:
             "explored_nodes": self.explored_nodes,
             "execution_time_ms": round(self.execution_time_ms, 4),
             "found": self.found,
+            "explored_order": self.explored_order,
         }
