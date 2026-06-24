@@ -1,0 +1,261 @@
+/* Estilos globales de RoboMaze. Sin frameworks externos ni iconos. */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f0f0f0;
+    color: #222;
+    min-height: 100vh;
+}
+
+/* Cabecera */
+header {
+    background-color: #1a1a2e;
+    color: #ffffff;
+    padding: 16px 24px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+}
+
+header p {
+    font-size: 0.9rem;
+    color: #aaaacc;
+    margin-top: 4px;
+}
+
+/* Contenedor principal */
+.main-layout {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+/* Panel izquierdo: configuracion y controles */
+.side-panel {
+    flex: 0 0 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Panel derecho: laberinto y resultados */
+.center-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 320px;
+}
+
+/* Tarjetas de seccion */
+.card {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 16px;
+}
+
+.card h2 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #1a1a2e;
+    padding-bottom: 6px;
+    color: #1a1a2e;
+}
+
+/* Selector de laberinto */
+#maze-selector {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Botones de modo de interaccion */
+.mode-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mode-btn {
+    padding: 8px 12px;
+    border: 2px solid #aaa;
+    border-radius: 4px;
+    background: #f9f9f9;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-align: left;
+    transition: all 0.15s;
+}
+
+.mode-btn.active {
+    border-color: #1a1a2e;
+    background: #1a1a2e;
+    color: #fff;
+    font-weight: bold;
+}
+
+.mode-btn:hover:not(.active) {
+    border-color: #555;
+    background: #ececec;
+}
+
+/* Leyenda de colores */
+.legend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.82rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 18px;
+    height: 18px;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.legend-free    { background: #ffffff; }
+.legend-obstacle{ background: #222222; }
+.legend-start   { background: #27ae60; }
+.legend-end     { background: #e74c3c; }
+.legend-path    { background: #2980b9; }
+.legend-explored{ background: #f1c40f; }
+
+/* Botones de ejecucion */
+.control-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-run {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: opacity 0.15s;
+}
+
+.btn-run:hover { opacity: 0.85; }
+
+#btn-bfs  { background: #2980b9; color: #fff; }
+#btn-dfs  { background: #8e44ad; color: #fff; }
+#btn-both { background: #16a085; color: #fff; }
+
+/* Panel de error */
+#error-panel {
+    display: none;
+    background: #fdecea;
+    border: 1px solid #e74c3c;
+    color: #c0392b;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+}
+
+/* Cuadricula del laberinto */
+#maze-grid {
+    display: grid;
+    gap: 1px;
+    background: #999;
+    border: 2px solid #555;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+/* Celdas del laberinto */
+.cell {
+    cursor: pointer;
+    transition: filter 0.1s;
+}
+
+.cell:hover { filter: brightness(0.85); }
+
+.cell-free     { background: #ffffff; }
+.cell-obstacle { background: #222222; }
+.cell-start    { background: #27ae60; }
+.cell-end      { background: #e74c3c; }
+.cell-path     { background: #2980b9; }
+.cell-explored { background: #f1c40f; }
+
+/* Paneles de resultado */
+.results-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.result-panel {
+    flex: 1;
+    min-width: 140px;
+}
+
+.result-card {
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+.result-card h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+.result-found {
+    background: #eafaf1;
+    border: 1px solid #27ae60;
+}
+
+.result-not-found {
+    background: #fdecea;
+    border: 1px solid #e74c3c;
+}
+
+.no-route {
+    color: #c0392b;
+    font-weight: bold;
+}
+
+.loading {
+    color: #555;
+    font-style: italic;
+}
+
+/* Responsividad basica */
+@media (max-width: 700px) {
+    .main-layout {
+        flex-direction: column;
+    }
+
+    .side-panel {
+        flex: none;
+        width: 100%;
+    }
+}

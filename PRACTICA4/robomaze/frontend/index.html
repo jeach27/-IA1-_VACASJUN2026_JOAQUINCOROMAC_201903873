@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RoboMaze - Busqueda de Rutas</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<header>
+    <h1>RoboMaze</h1>
+    <p>Sistema de busqueda de rutas en laberintos - BFS y DFS</p>
+</header>
+
+<main class="main-layout">
+
+    <!-- Panel de configuracion y controles -->
+    <aside class="side-panel">
+
+        <div class="card">
+            <h2>Laberinto predefinido</h2>
+            <select id="maze-selector">
+                <option value="">Cargando...</option>
+            </select>
+        </div>
+
+        <div class="card">
+            <h2>Modo de edicion</h2>
+            <div class="mode-buttons">
+                <button class="mode-btn" data-mode="obstacle">Colocar / quitar obstaculo</button>
+                <button class="mode-btn" data-mode="start">Definir posicion inicial</button>
+                <button class="mode-btn" data-mode="end">Definir posicion destino</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Leyenda</h2>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color legend-free"></div>
+                    <span>Celda libre</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-obstacle"></div>
+                    <span>Obstaculo</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-start"></div>
+                    <span>Posicion inicial</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-end"></div>
+                    <span>Posicion destino</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-path"></div>
+                    <span>Ruta encontrada</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-explored"></div>
+                    <span>Nodo explorado</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Ejecutar algoritmos</h2>
+            <div class="control-buttons">
+                <button id="btn-bfs" class="btn-run">Ejecutar BFS</button>
+                <button id="btn-dfs" class="btn-run">Ejecutar DFS</button>
+                <button id="btn-both" class="btn-run">Ejecutar BFS y DFS</button>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- Panel central: laberinto y resultados -->
+    <section class="center-panel">
+
+        <div id="error-panel"></div>
+
+        <div class="card">
+            <h2>Laberinto</h2>
+            <div id="maze-grid"></div>
+        </div>
+
+        <div class="card">
+            <h2>Resultados</h2>
+            <div class="results-row">
+                <div class="result-panel" id="result-bfs"></div>
+                <div class="result-panel" id="result-dfs"></div>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/maze.js"></script>
+<script src="js/ui.js"></script>
+
+</body>
+</html>
