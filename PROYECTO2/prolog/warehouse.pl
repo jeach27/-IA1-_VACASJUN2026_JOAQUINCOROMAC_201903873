@@ -1,0 +1,162 @@
+% warehouse.pl - Base de conocimiento Smart Warehouse
+% Inteligencia Artificial 1 - USAC
+
+% ---------------------------------------------------------------------------
+% HECHOS: Mapa 10x10
+% ---------------------------------------------------------------------------
+
+dimension(10, 10).
+
+% Obstaculos: obstaculo(Fila, Columna) - 9 en total
+obstaculo(2, 2).
+obstaculo(2, 3).
+obstaculo(3, 6).
+obstaculo(4, 4).
+obstaculo(5, 8).
+obstaculo(6, 2).
+obstaculo(7, 5).
+obstaculo(8, 3).
+obstaculo(9, 7).
+
+% Paquetes: paquete(ID, FilaInicial, ColumnaInicial, ZonaEntrega) - 5 en total
+paquete(p1, 1, 4, zona1).
+paquete(p2, 3, 8, zona2).
+paquete(p3, 5, 2, zona1).
+paquete(p4, 7, 9, zona2).
+paquete(p5, 9, 1, zona1).
+
+% Zonas de entrega: zona_entrega(ID, Fila, Columna) - 2 en total
+zona_entrega(zona1, 1, 9).
+zona_entrega(zona2, 9, 9).
+
+% Robots: robot(ID, FilaInicial, ColumnaInicial) - 1 en total
+robot(r1, 1, 1).
+
+% ---------------------------------------------------------------------------
+% REGLAS DE INFERENCIA
+% ---------------------------------------------------------------------------
+
+% Regla 1: Verificar si una casilla es valida (dentro del mapa y sin obstaculo)
+casilla_valida(F, C) :-
+    dimension(MaxF, MaxC),
+    F > 0, F =< MaxF,
+    C > 0, C =< MaxC,
+    \+ obstaculo(F, C).
+
+% Regla 2: El robot puede moverse arriba
+puede_mover_arriba(F, C, NF, C) :-
+    NF is F - 1,
+    casilla_valida(NF, C).
+
+% Regla 3: El robot puede moverse abajo
+puede_mover_abajo(F, C, NF, C) :-
+    NF is F + 1,
+    casilla_valida(NF, C).
+
+% Regla 4: El robot puede moverse a la izquierda
+puede_mover_izquierda(F, C, F, NC) :-
+    NC is C - 1,
+    casilla_valida(F, NC).
+
+% Regla 5: El robot puede moverse a la derecha
+puede_mover_derecha(F, C, F, NC) :-
+    NC is C + 1,
+    casilla_valida(F, NC).
+
+% Regla 6: El robot puede recoger un paquete si esta en la misma casilla
+puede_recoger(RobotF, RobotC, PaqueteID) :-
+    paquete(PaqueteID, RobotF, RobotC, _),
+    !.
+
+% Regla 7: El robot puede entregar el paquete si esta en la zona correcta
+puede_entregar(RobotF, RobotC, PaqueteID) :-
+    paquete(PaqueteID, _, _, ZonaID),
+    zona_entrega(ZonaID, RobotF, RobotC),
+    !.
+
+% Regla 8: Verificar si una posicion es una zona de entrega
+es_zona_entrega(F, C) :-
+    zona_entrega(_, F, C).
+
+% ---------------------------------------------------------------------------
+% REGLA PRINCIPAL DE DECISION
+% decidir_accion(RobotF, RobotC, LlevaPaquete, PaqueteID, DestF, DestC, Accion)
+%   LlevaPaquete: 'si' o 'no'
+%   PaqueteID:    ID del paquete que lleva (o 'ninguno')
+%   DestF, DestC: coordenadas del destino calculadas por el backend
+%   Accion:       accion a ejecutar (variable de salida)
+% ---------------------------------------------------------------------------
+
+% Caso 1: Lleva paquete y ya esta en la zona de entrega -> entregar
+decidir_accion(RobotF, RobotC, si, PaqueteID, _, _, entregar_paquete) :-
+    puede_entregar(RobotF, RobotC, PaqueteID),
+    !.
+
+% Caso 2: No lleva paquete y hay uno en su posicion -> recoger
+decidir_accion(RobotF, RobotC, no, _, _, _, recoger_paquete) :-
+    puede_recoger(RobotF, RobotC, _),
+    !.
+
+% Caso 3: Necesita moverse - prioridad fila sobre columna
+% Mover arriba si el destino esta en una fila menor
+decidir_accion(RobotF, RobotC, _, _, DestF, _, mover_arriba) :-
+    RobotF > DestF,
+    puede_mover_arriba(RobotF, RobotC, _, _),
+    !.
+
+% Mover abajo si el destino esta en una fila mayor
+decidir_accion(RobotF, RobotC, _, _, DestF, _, mover_abajo) :-
+    RobotF < DestF,
+    puede_mover_abajo(RobotF, RobotC, _, _),
+    !.
+
+% Mover derecha si el destino esta en una columna mayor
+decidir_accion(RobotF, RobotC, _, _, _, DestC, mover_derecha) :-
+    RobotC < DestC,
+    puede_mover_derecha(RobotF, RobotC, _, _),
+    !.
+
+% Mover izquierda si el destino esta en una columna menor
+decidir_accion(RobotF, RobotC, _, _, _, DestC, mover_izquierda) :-
+    RobotC > DestC,
+    puede_mover_izquierda(RobotF, RobotC, _, _),
+    !.
+
+% Caso alternativo: obstaculo en la direccion preferida, intentar otro eje
+% Si no puede ir en la fila correcta, intenta columna
+decidir_accion(RobotF, RobotC, _, _, _, DestC, mover_derecha) :-
+    RobotC < DestC,
+    puede_mover_derecha(RobotF, RobotC, _, _),
+    !.
+
+decidir_accion(RobotF, RobotC, _, _, _, DestC, mover_izquierda) :-
+    RobotC > DestC,
+    puede_mover_izquierda(RobotF, RobotC, _, _),
+    !.
+
+% Caso fallback: no puede moverse hacia el destino -> esperar
+decidir_accion(_, _, _, _, _, _, esperar).
+
+% ---------------------------------------------------------------------------
+% UTILIDADES AUXILIARES
+% ---------------------------------------------------------------------------
+
+% Obtener lista de todos los paquetes definidos
+todos_los_paquetes(Lista) :-
+    findall(PID, paquete(PID, _, _, _), Lista).
+
+% Obtener la zona de entrega de un paquete
+zona_de_paquete(PaqueteID, ZonaID, ZonaF, ZonaC) :-
+    paquete(PaqueteID, _, _, ZonaID),
+    zona_entrega(ZonaID, ZonaF, ZonaC).
+
+% Verificar si la lista de paquetes pendientes esta vacia (simulacion completa)
+simulacion_completada([]) :- !.
+
+% Obtener posicion inicial de un robot
+posicion_inicial_robot(RobotID, F, C) :-
+    robot(RobotID, F, C).
+
+% Obtener posicion inicial de un paquete
+posicion_inicial_paquete(PaqueteID, F, C) :-
+    paquete(PaqueteID, F, C, _).
