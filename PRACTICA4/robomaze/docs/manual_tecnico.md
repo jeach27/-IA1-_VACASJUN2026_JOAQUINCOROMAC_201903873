@@ -1,5 +1,12 @@
 # Manual Tecnico - RoboMaze
 
+**Proyecto:** RoboMaze - Sistema de busqueda de rutas en laberintos  
+**Curso:** Inteligencia Artificial 1 - Vacaciones primer semestre 2026  
+**Universidad:** Universidad de San Carlos de Guatemala  
+**Autor:** Joaquin Emmanuel Aldair Coromac Huezo - 201903873  
+
+---
+
 ## Descripcion general del sistema
 
 RoboMaze es un sistema de busqueda de rutas en laberintos virtuales. Permite representar un laberinto como una cuadricula bidimensional donde cada celda puede ser libre u obstaculo, y ejecutar los algoritmos BFS, DFS y A* para encontrar rutas entre una posicion inicial y una posicion objetivo.
@@ -10,44 +17,120 @@ El sistema mide longitud de ruta, nodos explorados y tiempo de ejecucion para co
 
 ## Patron de arquitectura
 
-Se utiliza el patron de capas (Layered Architecture), organizado en cuatro niveles de backend mas el frontend independiente. Cada capa solo se comunica con la inmediatamente inferior, lo que facilita el reemplazo o extension de componentes.
+### Descripcion del patron de capas (Layered Architecture)
+
+El backend de RoboMaze esta organizado siguiendo el patron de **Arquitectura en Capas** (Layered Architecture), tambien conocido como arquitectura por niveles o N-tier. Este patron divide el sistema en grupos horizontales de modulos, donde cada grupo tiene una responsabilidad bien definida y solo puede comunicarse directamente con la capa inmediatamente inferior.
+
+La regla central del patron es la siguiente: **cada capa conoce a la capa de abajo pero no a la de arriba**. Un router conoce al servicio que llama, pero no sabe quien lo llamo a el. Un algoritmo conoce el modelo que necesita, pero no sabe que servicio lo invoco. Esta restriccion es la que hace que el sistema sea mantenible y extensible.
+
+### Por que se eligio este patron para RoboMaze
+
+Se eligio la arquitectura en capas por tres razones principales:
+
+1. **Separacion de responsabilidades**: la logica de busqueda (BFS, DFS, A*) esta completamente separada de la logica de negocio (servicios), de la exposicion HTTP (routers) y de las estructuras de datos (modelos). Esto permite modificar o reemplazar cualquiera de esas partes sin afectar las demas.
+
+2. **Facilidad de extension**: agregar un nuevo algoritmo de busqueda (por ejemplo, Dijkstra) solo requiere crear un modulo en `algorithms/`, agregar una funcion en `search_service.py` y registrar un endpoint en `search_router.py`. El resto del sistema permanece sin cambios.
+
+3. **Claridad en el flujo**: el recorrido de una peticion siempre sigue la misma direccion (Router → Service → Algorithm → Model), lo que facilita la lectura del codigo y la deteccion de errores.
+
+### Capas del backend
+
+El backend tiene cuatro capas, de superior a inferior:
+
+#### 1. API REST Layer (Capa de routers)
+
+**Modulos:** `maze_router.py`, `search_router.py`
+
+Es la capa de entrada del sistema. Recibe las peticiones HTTP del frontend, valida el formato de los datos usando modelos Pydantic, y delega el trabajo a la capa de servicios. No contiene ninguna logica de negocio ni conoce los detalles de los algoritmos. Su unica responsabilidad es traducir HTTP a llamadas de Python y devolver la respuesta en JSON.
+
+Ejemplo de responsabilidad: cuando llega `POST /search/bfs`, el router valida que el cuerpo tenga `rows`, `cols`, `grid`, `start` y `end`, llama a `run_bfs()` del servicio, y retorna el resultado serializado. Nada mas.
+
+#### 2. Service Layer (Capa de servicios)
+
+**Modulos:** `maze_service.py`, `generator_service.py`, `search_service.py`
+
+Es la capa de logica de negocio. Orquesta las operaciones: construye instancias de `Maze` a partir de datos crudos, decide que algoritmo invocar, combina resultados cuando se piden comparativas, y contiene los laberintos predefinidos y el generador aleatorio. Actua como intermediario entre los routers y los algoritmos.
+
+Ejemplo de responsabilidad: `run_all()` llama a BFS, DFS y A* sobre el mismo laberinto, recolecta los tres `SearchResult` y los retorna como un diccionario serializado, listo para que el router lo envie como JSON.
+
+#### 3. Algorithm Layer (Capa de algoritmos)
+
+**Modulos:** `bfs.py`, `dfs.py`, `astar.py`
+
+Es el nucleo computacional del sistema. Cada modulo implementa un algoritmo de busqueda de forma completamente manual, sin librerias externas. Recibe una instancia de `Maze`, opera sobre ella, y retorna un `SearchResult` con la ruta, los nodos explorados, el orden de exploracion y el tiempo de ejecucion. No sabe nada del protocolo HTTP ni de como se construyo el laberinto.
+
+Esta separacion garantiza que los algoritmos son testeables de forma independiente: se puede instanciar un `Maze` directamente y llamar a `bfs(maze)` sin necesidad de levantar el servidor.
+
+#### 4. Model Layer (Capa de modelos)
+
+**Modulos:** `maze.py`, `search_result.py`
+
+Es la capa de datos. Define las estructuras que usan todas las capas superiores. `Maze` representa el laberinto con su cuadricula y expone `get_neighbors()`, el unico metodo de dominio que usan los algoritmos para moverse por el espacio. `SearchResult` encapsula la salida de cualquier algoritmo con un metodo `to_dict()` para la serializacion JSON.
+
+Esta capa no depende de ninguna otra: es el cimiento del sistema.
+
+### Flujo completo de una peticion
+
+A continuacion se describe el recorrido de `POST /search/bfs`:
 
 ```
-+---------------------------------------+
-|           Frontend                    |
-|   index.html / api.js / ui.js         |
-|   maze.js / styles.css                |
-+-------------------+-------------------+
-                    | HTTP JSON
-                    v
-+---------------------------------------+
-|          API REST Layer               |
-|   maze_router.py                      |
-|   search_router.py                    |
-+-------------------+-------------------+
-                    |
-                    v
-+---------------------------------------+
-|          Service Layer                |
-|   maze_service.py                     |
-|   generator_service.py                |
-|   search_service.py                   |
-+-------------------+-------------------+
-                    |
-                    v
-+---------------------------------------+
-|          Algorithm Layer              |
-|   bfs.py   dfs.py   astar.py          |
-+-------------------+-------------------+
-                    |
-                    v
-+---------------------------------------+
-|          Model Layer                  |
-|   maze.py   search_result.py          |
-+---------------------------------------+
+Cliente (navegador)
+    |
+    | POST /search/bfs  {rows, cols, grid, start, end}
+    v
+[search_router.py]          <- valida con Pydantic, extrae MazeRequest
+    |
+    | build_maze(data)
+    v
+[maze_service.py]           <- construye instancia Maze
+    |
+    | bfs(maze)
+    v
+[bfs.py]                    <- ejecuta BFS con deque
+    |
+    | get_neighbors(r, c)
+    v
+[maze.py]                   <- retorna celdas adyacentes validas
+    |
+    | (retorna SearchResult)
+    v
+[bfs.py -> search_service -> search_router]
+    |
+    | JSON {path, explored_nodes, time, found, explored_order}
+    v
+Cliente (navegador)         <- renderiza resultado en la cuadricula
 ```
 
-Los diagramas completos en PlantUML (clases, componentes y secuencias) se encuentran en `.claude/diagramas_plantuml.md`.
+### Como extender el sistema con un nuevo algoritmo
+
+El patron de capas hace que la extension sea predecible. Para agregar el algoritmo de Dijkstra, por ejemplo, los pasos son exactamente estos:
+
+1. Crear `backend/app/algorithms/dijkstra.py` con la funcion `dijkstra(maze: Maze) -> SearchResult`.
+2. Agregar `run_dijkstra(maze)` en `search_service.py`.
+3. Agregar `POST /search/dijkstra` en `search_router.py`.
+4. Agregar el boton y llamada en el frontend.
+
+Ninguna otra parte del sistema necesita modificarse.
+
+---
+
+## Diagramas
+
+
+### Diagrama de Clases
+
+El siguiente diagrama muestra las clases principales del backend, sus atributos, metodos y relaciones de dependencia.
+
+![Diagrama de Clases](image/diagramaClases.png)
+
+---
+
+### Diagrama de Componentes
+
+El siguiente diagrama muestra la arquitectura en capas del sistema completo, incluyendo el frontend y todos los modulos del backend con sus dependencias.
+
+
+![Diagrama de Componentes](image/diagramaComponentes.png)
 
 ---
 
@@ -83,6 +166,7 @@ robomaze/
     docs/
         manual_tecnico.md           - Este documento
         manual_usuario.md           - Guia de instalacion y uso
+        img/                        - Imagenes para los manuales
     .gitignore
     README.md
 ```
@@ -93,28 +177,28 @@ robomaze/
 
 ### Breadth-First Search (BFS)
 
-BFS explora el grafo por niveles usando una cola FIFO (`collections.deque`). Desde el nodo inicial agrega todos sus vecinos no visitados a la cola, luego los vecinos de esos vecinos, y asi sucesivamente. La primera vez que se alcanza el destino se garantiza que la ruta es optima.
+BFS explora el grafo por niveles usando una cola FIFO (`collections.deque`). Desde el nodo inicial agrega todos sus vecinos no visitados a la cola, luego los vecinos de esos vecinos, y asi sucesivamente. La primera vez que se alcanza el destino se garantiza que la ruta es optima porque todos los nodos a distancia k se visitan antes que cualquier nodo a distancia k+1.
 
-- Complejidad temporal: O(V + E)
-- Complejidad espacial: O(V)
-- Garantia: ruta optima (minima cantidad de celdas)
+- Complejidad temporal: O(V + E), donde V = filas x columnas, E = aristas entre celdas libres
+- Complejidad espacial: O(V) para la cola y el diccionario de padres
+- Garantia: ruta optima (minima cantidad de celdas) cuando todos los costos son iguales
 
 ### Depth-First Search (DFS)
 
-DFS explora el grafo profundizando por cada rama usando una pila LIFO (lista de Python). No garantiza la ruta optima.
+DFS explora el grafo profundizando por cada rama usando una pila LIFO (lista de Python). Sigue un camino hasta el fondo antes de retroceder y explorar otra rama. No garantiza la ruta optima porque puede encontrar el destino por un camino largo antes de intentar uno corto.
 
 - Complejidad temporal: O(V + E)
-- Complejidad espacial: O(V)
+- Complejidad espacial: O(V) para la pila y el diccionario de padres
 - Garantia: encuentra una ruta si existe, no necesariamente la mas corta
 
 ### A* (A-estrella)
 
-A* usa una cola de prioridad (`heapq`) ordenada por f(n) = g(n) + h(n), donde g(n) es el costo acumulado desde el inicio y h(n) es la distancia Manhattan al destino. Al ser la heuristica admisible, garantiza la ruta optima y generalmente explora menos nodos que BFS.
+A* usa una cola de prioridad (`heapq`) ordenada por f(n) = g(n) + h(n), donde g(n) es el costo acumulado desde el inicio y h(n) es la distancia Manhattan al destino. Al priorizar nodos con menor costo estimado total, el algoritmo se dirige hacia el destino de forma informada. La heuristica Manhattan es admisible (nunca sobreestima) porque solo se permiten movimientos cardinales.
 
-- Complejidad temporal: O(V log V) por el heap
-- Complejidad espacial: O(V)
-- Garantia: ruta optima con heuristica admisible
-- Heuristica: distancia Manhattan |dr| + |dc|
+- Complejidad temporal: O(V log V) por el uso del heap binario
+- Complejidad espacial: O(V) para el heap y el diccionario de padres
+- Garantia: ruta optima cuando la heuristica es admisible
+- Heuristica: distancia Manhattan h(n) = |fila_n - fila_destino| + |col_n - col_destino|
 
 ### Diferencias en comportamiento
 
@@ -125,6 +209,7 @@ A* usa una cola de prioridad (`heapq`) ordenada por f(n) = g(n) + h(n), donde g(
 | Nodos explorados       | Mayor cantidad        | Variable                 | Menor (guiado por h)      |
 | Uso de memoria         | Alto                  | Bajo en grafos profundos | Moderado                  |
 | Heuristica             | No                    | No                       | Si (Manhattan)            |
+| Complejidad temporal   | O(V + E)              | O(V + E)                 | O(V log V)                |
 
 ---
 
@@ -166,35 +251,50 @@ El resultado es un laberinto perfecto: existe exactamente un camino entre cualqu
 {
   "rows": 10,
   "cols": 10,
-  "grid": [[0,0,1,...], ...],
+  "grid": [[0,0,1,0,...], ...],
   "start": [0, 0],
   "end": [9, 9]
 }
 ```
 
-### Respuesta de busqueda
+### Respuesta de busqueda (ruta encontrada)
 
 ```json
 {
   "algorithm": "BFS",
-  "path": [[0,0],[0,1],...,[9,9]],
+  "path": [[0,0],[0,1],[0,2],...,[9,9]],
   "path_length": 18,
   "explored_nodes": 45,
   "execution_time_ms": 0.21,
   "found": true,
-  "explored_order": [[0,0],[0,1],...]
+  "explored_order": [[0,0],[0,1],[1,0],...]
 }
 ```
 
-El campo `explored_order` contiene los nodos en el orden en que fueron procesados por el algoritmo. El frontend lo usa para la animacion.
+El campo `explored_order` contiene los nodos en el orden en que fueron procesados. El frontend lo usa para la animacion secuencial.
+
+### Respuesta sin ruta
+
+```json
+{
+  "algorithm": "BFS",
+  "path": [],
+  "path_length": 0,
+  "explored_nodes": 50,
+  "execution_time_ms": 0.18,
+  "found": false,
+  "explored_order": [...],
+  "message": "No existe ruta entre el inicio y el destino."
+}
+```
 
 ### Respuesta de /search/all
 
 ```json
 {
-  "bfs":   { ...resultado BFS...  },
-  "dfs":   { ...resultado DFS...  },
-  "astar": { ...resultado A*...   }
+  "bfs":   { "algorithm": "BFS",  "path_length": 18, "explored_nodes": 45, ... },
+  "dfs":   { "algorithm": "DFS",  "path_length": 24, "explored_nodes": 31, ... },
+  "astar": { "algorithm": "A*",   "path_length": 18, "explored_nodes": 22, ... }
 }
 ```
 
@@ -209,7 +309,7 @@ El campo `explored_order` contiene los nodos en el orden en que fueron procesado
 - RF05: Permitir definir posicion inicial y posicion objetivo.
 - RF06: Permitir colocar y quitar obstaculos en la cuadricula.
 - RF07: Mostrar graficamente la ruta encontrada sobre la cuadricula.
-- RF08: Mostrar los nodos explorados y el tiempo de ejecucion.
+- RF08: Mostrar la cantidad de nodos explorados y el tiempo de ejecucion.
 - RF09: Ejecutar BFS, DFS y A* de forma independiente o conjunta.
 - RF10: Exponer los algoritmos mediante una API REST.
 - RF11: Proveer 5 laberintos predefinidos desde la API.
@@ -223,21 +323,21 @@ El campo `explored_order` contiene los nodos en el orden en que fueron procesado
 
 ## Requerimientos no funcionales
 
-- RNF01 Rendimiento: los algoritmos responden en menos de 500 ms para cuadriculas de hasta 25x25.
-- RNF02 Mantenibilidad: patron de capas con responsabilidad unica por modulo, documentado con docstrings.
-- RNF03 Usabilidad: la interfaz web no requiere instalacion adicional; basta con abrir index.html en el navegador con el backend activo.
-- RNF04 Escalabilidad: agregar un nuevo algoritmo requiere solo crear un modulo en `algorithms/`, una funcion en `search_service.py` y un endpoint en `search_router.py`.
-- RNF05 Portabilidad: el backend requiere Python 3.11+; el frontend funciona en cualquier navegador moderno sin dependencias externas.
-- RNF06 Restricciones: no se usan librerias externas de busqueda de rutas ni bases de datos.
+- RNF01 Rendimiento: los algoritmos responden en menos de 500 ms para cuadriculas de hasta 25x25 en hardware de escritorio estandar.
+- RNF02 Mantenibilidad: patron de capas con responsabilidad unica por modulo; todos los modulos documentados con docstrings.
+- RNF03 Usabilidad: la interfaz web no requiere instalacion adicional; basta con abrir `index.html` en el navegador con el backend activo.
+- RNF04 Escalabilidad: agregar un nuevo algoritmo requiere solo crear un modulo en `algorithms/`, una funcion en `search_service.py` y un endpoint en `search_router.py`, sin modificar el resto del sistema.
+- RNF05 Portabilidad: el backend requiere Python 3.11 o superior; el frontend funciona en cualquier navegador moderno sin dependencias externas.
+- RNF06 Restricciones cumplidas: no se usan librerias externas de busqueda de rutas, no se usa base de datos, los algoritmos son implementacion propia.
 
 ---
 
-## Posibles mejoras futuras
+## Posibles mejoras
 
-- Guardar y cargar laberintos personalizados en formato JSON (localStorage o archivo).
+- Guardar y cargar laberintos personalizados en formato JSON mediante localStorage.
 - Graficas de rendimiento comparando los tres algoritmos sobre multiples laberintos.
 - Multiples puntos objetivo con busqueda desde la posicion mas cercana.
-- Obstaculos dinamicos que se agregan durante la ejecucion del algoritmo.
+- Obstaculos dinamicos que aparecen durante la ejecucion del algoritmo.
 - Exportacion de resultados y estadisticas a CSV o PDF.
-- Soporte para movimiento diagonal (heuristica euclidiana para A*).
-- Pesos en las celdas para implementar variantes de costo variable (Dijkstra, A* ponderado).
+- Soporte para movimiento diagonal con heuristica euclidiana para A*.
+- Pesos en las celdas para implementar variantes de costo variable (Dijkstra o A* ponderado).

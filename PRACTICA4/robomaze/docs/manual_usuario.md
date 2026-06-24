@@ -1,9 +1,16 @@
 # Manual de Usuario - RoboMaze
 
+**Proyecto:** RoboMaze - Sistema de busqueda de rutas en laberintos  
+**Curso:** Inteligencia Artificial 1 - Vacaciones primer semestre 2026  
+**Universidad:** Universidad de San Carlos de Guatemala  
+**Autor:** Joaquin Emmanuel Aldair Coromac Huezo - 201903873  
+
+---
+
 ## Requisitos previos
 
 - Python 3.11 o superior instalado en el sistema.
-- Pip actualizado (`python -m pip install --upgrade pip`).
+- Pip actualizado: `python -m pip install --upgrade pip`
 - Navegador web actualizado (Chrome, Firefox, Edge o equivalente).
 - Conexion a internet no requerida en modo local.
 
@@ -13,7 +20,7 @@
 
 ### Paso 1: Abrir una terminal
 
-Abra una terminal (PowerShell, CMD o bash) en la carpeta raiz del proyecto (`robomaze/`).
+Abra una terminal (PowerShell, CMD o bash) y navegue hasta la carpeta raiz del proyecto (`robomaze/`).
 
 ### Paso 2: Entrar a la carpeta backend
 
@@ -57,95 +64,146 @@ Si el servidor inicia correctamente vera en la terminal:
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 ```
 
-La documentacion interactiva de la API estara disponible en:
-```
-http://localhost:8000/docs
-```
+La documentacion interactiva de la API estara disponible en `http://localhost:8000/docs`.
 
 ---
 
 ## Uso del frontend
 
-Abra el archivo `frontend/index.html` directamente en el navegador (doble clic o arrastrar al navegador). No se necesita ninguna instalacion adicional.
+Abra el archivo `frontend/index.html` directamente en el navegador (doble clic o arrastrarlo al navegador). No se requiere instalacion adicional.
 
-Asegurese de que el backend esta en ejecucion antes de abrir el frontend, ya que la interfaz se conecta automaticamente a `http://localhost:8000`.
+Asegurese de que el backend este en ejecucion antes de abrir el frontend, ya que la interfaz se conecta automaticamente a `http://localhost:8000`.
 
 ---
 
 ## Como usar el sistema
 
-### 1. Cargar un laberinto predefinido
+### 1. Vista general de la interfaz
 
-Al abrir la aplicacion, el sistema descarga automaticamente los 5 laberintos predefinidos desde la API y los muestra en el selector "Laberinto predefinido". Seleccione uno de la lista para cargarlo en la cuadricula.
+Al abrir la aplicacion vera dos paneles: el panel de configuracion a la izquierda y el laberinto con los resultados a la derecha.
+
+![Vista general de la interfaz](image/ManualUsuario_General.png)
+
+*Captura 1: Vista general de RoboMaze al iniciar. El panel izquierdo contiene los controles y el derecho muestra la cuadricula.*
+
+---
+
+### 2. Cargar un laberinto predefinido
+
+Al iniciar la aplicacion, el sistema descarga automaticamente los 5 laberintos predefinidos desde la API y los carga en el selector. Seleccione uno de la lista para cargarlo en la cuadricula.
 
 Los laberintos disponibles son:
-- simple: camino directo sin muchos obstaculos.
-- medio: dificultad media con varios pasillos.
-- largo: ruta larga en forma de espiral.
-- sinruta: laberinto sin solucion (muro central completo).
-- complejo: multiples bifurcaciones y obstaculos.
 
-### 2. Editar el laberinto
+| Nombre    | Descripcion                                         |
+|-----------|-----------------------------------------------------|
+| simple    | Camino directo con pocos obstaculos                 |
+| medio     | Dificultad media con varios pasillos                |
+| largo     | Ruta larga en forma de espiral                      |
+| sinruta   | Laberinto sin solucion posible (muro central)       |
+| complejo  | Multiples bifurcaciones y obstaculos                |
 
-Use los botones de "Modo de edicion" para elegir la accion que realizara al hacer clic sobre una celda:
+![Selector de laberintos predefinidos](image/ManualUsuario_laberintoPredefinido.png)
 
-- **Colocar / quitar obstaculo**: hace clic en una celda libre para convertirla en obstaculo (negro), y en un obstaculo para liberarla.
+
+
+---
+
+### 3. Configurar el tamano del laberinto
+
+En el panel "Tamano del laberinto" ingrese el numero de filas y columnas deseado (entre 5 y 25). Luego use uno de los dos botones:
+
+- **Crear vacio**: genera una cuadricula en blanco con el tamano indicado para editarla manualmente.
+- **Generar aleatorio**: solicita a la API un laberinto generado con el algoritmo Recursive Backtracker. El inicio y destino se asignan automaticamente.
+
+![Laberinto generado aleatoriamente](image/ManualUsuario_TamanioLaberinto.png)
+
+
+---
+
+### 4. Editar el laberinto manualmente
+
+Use los botones del panel "Modo de edicion" para cambiar la accion que realiza cada clic sobre la cuadricula:
+
+- **Colocar / quitar obstaculo**: convierte una celda libre en obstaculo (negro) o viceversa.
 - **Definir posicion inicial**: el siguiente clic marca la celda como punto de partida (verde).
 - **Definir posicion destino**: el siguiente clic marca la celda como punto de llegada (rojo).
 
 El boton del modo activo aparece resaltado en azul oscuro.
 
-### 3. Configurar el tamano del laberinto
+![Edicion del laberinto](image/ManualUsuario_edicionOpcionesLaberinto.png)
 
-En el panel "Tamano del laberinto" puede ingresar el numero de filas y columnas (entre 5 y 25). Luego tiene dos opciones:
+*Captura 4: Modo "Colocar / quitar obstaculo" activo. Se puede ver el inicio en verde, el destino en rojo y obstaculos en negro.*
 
-- **Crear vacio**: genera una cuadricula en blanco con el tamano indicado para que la edite manualmente.
-- **Generar aleatorio**: solicita a la API un laberinto generado automaticamente con el algoritmo Recursive Backtracker. El inicio y destino se establecen automaticamente.
+---
 
-### 4. Activar la animacion
+### 5. Activar la animacion de exploracion
 
-En el panel "Opciones", marque la casilla **Animar exploracion de nodos** para ver como el algoritmo visita cada celda una a una (en amarillo) antes de mostrar la ruta final (en azul). Si la casilla no esta marcada, el resultado se muestra de forma instantanea.
+En el panel "Opciones", marque la casilla **Animar exploracion de nodos** para ver, de forma secuencial, como el algoritmo visita cada celda (en amarillo) antes de mostrar la ruta final (en azul). Si la casilla no esta marcada, el resultado se muestra de forma instantanea.
 
-### 5. Ejecutar los algoritmos
+
+---
+
+### 6. Ejecutar los algoritmos
 
 Haga clic en uno de los botones del panel "Ejecutar algoritmos":
 
-- **Ejecutar BFS**: busca la ruta optima (mas corta) con Breadth-First Search.
-- **Ejecutar DFS**: busca una ruta con Depth-First Search (puede no ser la mas corta).
-- **Ejecutar A***: busca la ruta optima usando heuristica Manhattan (generalmente explora menos nodos que BFS).
-- **BFS y DFS**: ejecuta ambos y muestra los dos resultados.
-- **Comparar los tres**: ejecuta BFS, DFS y A* y muestra una tabla comparativa con los valores de cada metrica resaltando el mejor.
+| Boton              | Accion                                                             |
+|--------------------|--------------------------------------------------------------------|
+| Ejecutar BFS       | Ruta optima (mas corta) con Breadth-First Search                   |
+| Ejecutar DFS       | Ruta con Depth-First Search (puede no ser la mas corta)            |
+| Ejecutar A*        | Ruta optima con heuristica Manhattan (explora menos nodos que BFS) |
+| BFS y DFS          | Ejecuta ambos y muestra los dos paneles de resultado               |
+| Comparar los tres  | Ejecuta BFS, DFS y A* y muestra tabla comparativa                  |
 
-Si no ha definido inicio o destino, aparecera un mensaje de error en rojo.
+Si no se ha definido el inicio o el destino, aparecera un mensaje de error en rojo en la parte superior del laberinto.
 
-### 6. Leer los resultados
+![Resultado de BFS](image/ManualUsuario_ejecucionAlgoritmos.png)
+
+
+---
+
+### 7. Leer los resultados individuales
 
 El panel "Resultados individuales" muestra, para cada algoritmo ejecutado:
 
 - Si se encontro ruta o no.
-- Longitud de la ruta (cantidad de celdas).
+- Longitud de la ruta (cantidad de celdas, incluyendo inicio y destino).
 - Nodos explorados durante la busqueda.
 - Tiempo de ejecucion en milisegundos.
 
-La ruta encontrada se visualiza en la cuadricula en color azul. Si no existe ruta, el panel muestra el mensaje "Sin ruta disponible."
+Si no existe ruta, el panel aparece en rojo con el mensaje "Sin ruta disponible."
 
-Cuando se ejecuta "Comparar los tres", aparece ademas una tabla con las tres columnas. La celda resaltada en verde indica el mejor valor para cada metrica.
+![Resultado sin ruta](image/ManualUsuario_resultadosAlgoritmos.png)
 
-### Leyenda de colores de la cuadricula
-
-| Color       | Significado           |
-|-------------|-----------------------|
-| Blanco      | Celda libre           |
-| Negro       | Obstaculo             |
-| Verde       | Posicion inicial      |
-| Rojo        | Posicion destino      |
-| Azul        | Ruta encontrada       |
-| Amarillo    | Nodo explorado        |
 
 ---
 
-## Capturas de pantalla
+### 8. Ver la tabla comparativa
 
-*Las capturas de pantalla del sistema en funcionamiento se agregan en esta seccion una vez que el sistema este desplegado.*
+Al usar el boton "Comparar los tres", aparece debajo de los resultados individuales una tabla con los tres algoritmos. El valor resaltado en verde es el mejor para cada metrica.
 
-<!-- Agregar capturas reales del laberinto cargado, la ejecucion de BFS y DFS, y la comparacion de resultados. -->
+---
+
+## Leyenda de colores de la cuadricula
+
+| Color        | Significado           |
+|--------------|-----------------------|
+| Blanco       | Celda libre           |
+| Negro        | Obstaculo             |
+| Verde        | Posicion inicial      |
+| Rojo         | Posicion destino      |
+| Azul         | Ruta encontrada       |
+| Amarillo     | Nodo explorado (animacion) |
+
+---
+
+## frecuentes
+
+**El frontend no carga los laberintos predefinidos.**  
+Asegurese de que el backend este en ejecucion en `http://localhost:8000`. Si usa un navegador con restricciones CORS estrictas, sirva el frontend con un servidor local como `python -m http.server 5500` desde la carpeta `frontend/`.
+
+**La animacion es muy rapida o muy lenta.**  
+La velocidad de animacion es fija en 20 ms por nodo. Para laberintos grandes (20x25) con muchos nodos explorados puede tardar varios segundos. Desmarque la casilla de animacion para ver el resultado instantaneamente.
+
+**El boton "Generar aleatorio" no hace nada.**  
+Verifique que el backend este activo y que el endpoint `GET /maze/generate` responda correctamente en `http://localhost:8000/docs`.
