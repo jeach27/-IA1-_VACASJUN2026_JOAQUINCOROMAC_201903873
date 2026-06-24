@@ -95,26 +95,41 @@ Use los botones de "Modo de edicion" para elegir la accion que realizara al hace
 
 El boton del modo activo aparece resaltado en azul oscuro.
 
-### 3. Ejecutar los algoritmos
+### 3. Configurar el tamano del laberinto
+
+En el panel "Tamano del laberinto" puede ingresar el numero de filas y columnas (entre 5 y 25). Luego tiene dos opciones:
+
+- **Crear vacio**: genera una cuadricula en blanco con el tamano indicado para que la edite manualmente.
+- **Generar aleatorio**: solicita a la API un laberinto generado automaticamente con el algoritmo Recursive Backtracker. El inicio y destino se establecen automaticamente.
+
+### 4. Activar la animacion
+
+En el panel "Opciones", marque la casilla **Animar exploracion de nodos** para ver como el algoritmo visita cada celda una a una (en amarillo) antes de mostrar la ruta final (en azul). Si la casilla no esta marcada, el resultado se muestra de forma instantanea.
+
+### 5. Ejecutar los algoritmos
 
 Haga clic en uno de los botones del panel "Ejecutar algoritmos":
 
 - **Ejecutar BFS**: busca la ruta optima (mas corta) con Breadth-First Search.
-- **Ejecutar DFS**: busca una ruta con Depth-First Search.
-- **Ejecutar BFS y DFS**: ejecuta ambos algoritmos y muestra los dos resultados.
+- **Ejecutar DFS**: busca una ruta con Depth-First Search (puede no ser la mas corta).
+- **Ejecutar A***: busca la ruta optima usando heuristica Manhattan (generalmente explora menos nodos que BFS).
+- **BFS y DFS**: ejecuta ambos y muestra los dos resultados.
+- **Comparar los tres**: ejecuta BFS, DFS y A* y muestra una tabla comparativa con los valores de cada metrica resaltando el mejor.
 
 Si no ha definido inicio o destino, aparecera un mensaje de error en rojo.
 
-### 4. Leer los resultados
+### 6. Leer los resultados
 
-El panel "Resultados" muestra, para cada algoritmo ejecutado:
+El panel "Resultados individuales" muestra, para cada algoritmo ejecutado:
 
 - Si se encontro ruta o no.
 - Longitud de la ruta (cantidad de celdas).
 - Nodos explorados durante la busqueda.
 - Tiempo de ejecucion en milisegundos.
 
-La ruta encontrada se visualiza en la cuadricula en color azul. Si no existe ruta, el panel muestra el mensaje "No existe ruta entre el inicio y el destino."
+La ruta encontrada se visualiza en la cuadricula en color azul. Si no existe ruta, el panel muestra el mensaje "Sin ruta disponible."
+
+Cuando se ejecuta "Comparar los tres", aparece ademas una tabla con las tres columnas. La celda resaltada en verde indica el mejor valor para cada metrica.
 
 ### Leyenda de colores de la cuadricula
 
