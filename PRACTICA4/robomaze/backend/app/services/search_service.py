@@ -3,6 +3,7 @@ Servicio de busqueda. Orquesta la ejecucion de los algoritmos BFS y DFS
 sobre una instancia de Maze y retorna los resultados serializables.
 """
 
+from app.algorithms.astar import astar
 from app.algorithms.bfs import bfs
 from app.algorithms.dfs import dfs
 from app.models.maze import Maze
@@ -33,6 +34,18 @@ def run_dfs(maze: Maze) -> SearchResult:
     return dfs(maze)
 
 
+def run_astar(maze: Maze) -> SearchResult:
+    """Ejecuta el algoritmo A* sobre el laberinto dado.
+
+    Args:
+        maze: Instancia de Maze con la configuracion del laberinto.
+
+    Returns:
+        SearchResult con los resultados de la busqueda A*.
+    """
+    return astar(maze)
+
+
 def run_both(maze: Maze) -> dict:
     """Ejecuta BFS y DFS sobre el mismo laberinto y retorna ambos resultados.
 
@@ -48,4 +61,23 @@ def run_both(maze: Maze) -> dict:
     return {
         "bfs": result_bfs.to_dict(),
         "dfs": result_dfs.to_dict(),
+    }
+
+
+def run_all(maze: Maze) -> dict:
+    """Ejecuta BFS, DFS y A* y retorna los tres resultados para comparacion.
+
+    Args:
+        maze: Instancia de Maze con la configuracion del laberinto.
+
+    Returns:
+        Diccionario con claves 'bfs', 'dfs' y 'astar', serializados.
+    """
+    result_bfs = bfs(maze)
+    result_dfs = dfs(maze)
+    result_astar = astar(maze)
+    return {
+        "bfs": result_bfs.to_dict(),
+        "dfs": result_dfs.to_dict(),
+        "astar": result_astar.to_dict(),
     }

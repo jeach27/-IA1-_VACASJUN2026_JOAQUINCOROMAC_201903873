@@ -65,3 +65,52 @@ async function searchBoth(mazeData) {
         throw error;
     }
 }
+
+// Envia la configuracion del laberinto y ejecuta el algoritmo A*.
+// mazeData debe tener: rows, cols, grid, start, end.
+async function searchAStar(mazeData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/search/astar`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(mazeData),
+        });
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Error en busqueda A*:", error);
+        throw error;
+    }
+}
+
+// Ejecuta BFS, DFS y A* en un solo llamado para comparacion estadistica.
+// Retorna un objeto con claves 'bfs', 'dfs' y 'astar'.
+async function searchAll(mazeData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/search/all`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(mazeData),
+        });
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Error en comparacion de algoritmos:", error);
+        throw error;
+    }
+}
+
+// Solicita a la API un laberinto generado aleatoriamente con las dimensiones dadas.
+// Retorna un objeto con rows, cols, grid, start y end.
+async function generateMaze(rows, cols) {
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/maze/generate?rows=${rows}&cols=${cols}`
+        );
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Error al generar laberinto:", error);
+        throw error;
+    }
+}

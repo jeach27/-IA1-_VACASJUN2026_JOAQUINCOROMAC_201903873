@@ -98,6 +98,46 @@ function renderMaze(containerId, path, explored) {
     }
 }
 
+// Promesa que resuelve despues de ms milisegundos; usada para la animacion.
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Renderiza el laberinto y anima los nodos explorados uno a uno, luego muestra la ruta.
+// exploredOrder: lista ordenada de [fila, col] procesados por el algoritmo.
+// path: lista de [fila, col] que forman la ruta final.
+// delay: milisegundos entre cada nodo animado.
+async function renderMazeAnimated(containerId, exploredOrder, path, delay = 25) {
+    // Renderizar el estado base sin ruta ni explorados.
+    renderMaze(containerId, [], []);
+
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    // Animar nodos explorados uno a uno.
+    for (const [r, c] of (exploredOrder || [])) {
+        const isStart = mazeState.start && mazeState.start[0] === r && mazeState.start[1] === c;
+        const isEnd   = mazeState.end   && mazeState.end[0]   === r && mazeState.end[1]   === c;
+        if (!isStart && !isEnd && mazeState.grid[r][c] === 0) {
+            const idx  = r * mazeState.cols + c;
+            const cell = container.children[idx];
+            if (cell) cell.className = "cell cell-explored";
+        }
+        await sleep(delay);
+    }
+
+    // Pintar la ruta encima de los nodos explorados.
+    for (const [r, c] of (path || [])) {
+        const isStart = mazeState.start && mazeState.start[0] === r && mazeState.start[1] === c;
+        const isEnd   = mazeState.end   && mazeState.end[0]   === r && mazeState.end[1]   === c;
+        if (!isStart && !isEnd) {
+            const idx  = r * mazeState.cols + c;
+            const cell = container.children[idx];
+            if (cell) cell.className = "cell cell-path";
+        }
+    }
+}
+
 // Maneja el click sobre una celda segun el modo de interaccion activo.
 function handleCellClick(row, col) {
     if (activeMode === "start") {
