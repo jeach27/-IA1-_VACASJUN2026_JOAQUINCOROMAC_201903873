@@ -166,7 +166,7 @@ robomaze/
     docs/
         manual_tecnico.md           - Este documento
         manual_usuario.md           - Guia de instalacion y uso
-        img/                        - Imagenes para los manuales
+        image/                      - Imagenes para los manuales
     .gitignore
     README.md
 ```
@@ -295,6 +295,53 @@ El campo `explored_order` contiene los nodos en el orden en que fueron procesado
   "bfs":   { "algorithm": "BFS",  "path_length": 18, "explored_nodes": 45, ... },
   "dfs":   { "algorithm": "DFS",  "path_length": 24, "explored_nodes": 31, ... },
   "astar": { "algorithm": "A*",   "path_length": 18, "explored_nodes": 22, ... }
+}
+```
+
+---
+
+### Manejo de errores de la API
+
+Todos los endpoints de busqueda incluyen validacion de entrada y captura de errores inesperados. La funcion `_validate_maze_request` en `search_router.py` centraliza las validaciones y lanza `HTTPException` con el codigo apropiado antes de ejecutar cualquier algoritmo.
+
+#### Codigos de estado HTTP
+
+| Codigo | Significado                                 | Cuando ocurre                                              |
+|--------|---------------------------------------------|------------------------------------------------------------|
+| 200    | OK                                          | Peticion procesada correctamente (incluso si found=false)  |
+| 400    | Bad Request                                 | La configuracion del laberinto no es valida                |
+| 422    | Unprocessable Entity                        | Tipos de datos incorrectos o params de query fuera de rango|
+| 500    | Internal Server Error                       | Error inesperado durante la ejecucion del algoritmo        |
+
+#### Validaciones que producen error 400
+
+La funcion `_validate_maze_request` verifica los siguientes casos antes de ejecutar cualquier algoritmo:
+
+| Condicion invalida                              | Mensaje de error retornado                                              |
+|-------------------------------------------------|-------------------------------------------------------------------------|
+| `rows < 1` o `cols < 1`                         | rows y cols deben ser enteros positivos mayores que 0.                  |
+| `len(grid) != rows`                             | El grid tiene N filas pero rows indica M.                               |
+| Una fila del grid no es lista                   | La fila i del grid no es una lista.                                     |
+| `len(grid[i]) != cols`                          | La fila i tiene N columnas pero cols indica M.                          |
+| Celda con valor distinto de 0 o 1               | Valor invalido en celda (i,j): se esperaba 0 o 1, se recibio X.        |
+| `len(start) != 2` o `len(end) != 2`             | start/end debe ser una lista de exactamente dos enteros [fila, columna].|
+| start o end fuera de los limites del grid       | La posicion inicial/destino (r,c) esta fuera de los limites NxM.       |
+| start o end sobre una celda obstaculo           | La posicion inicial/destino (r,c) esta marcada como obstaculo.          |
+| start y end son la misma celda                  | La posicion inicial y la posicion destino no pueden ser la misma celda. |
+
+#### Ejemplo de respuesta de error 400
+
+```json
+{
+  "detail": "La posicion inicial (0,0) esta marcada como obstaculo."
+}
+```
+
+#### Ejemplo de respuesta de error 500
+
+```json
+{
+  "detail": "Error interno al ejecutar BFS: <descripcion del error>"
 }
 ```
 
