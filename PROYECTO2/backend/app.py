@@ -3,7 +3,9 @@ import time
 import uuid
 from datetime import datetime
 
-from flask import Flask, jsonify, request, send_file
+import os
+
+from flask import Flask, jsonify, request, send_file, send_from_directory
 from flask_cors import CORS
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -15,6 +17,8 @@ from prolog_interface import PrologInterface
 
 app = Flask(__name__)
 CORS(app)
+
+FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
 
 prolog = PrologInterface()
 
@@ -466,5 +470,19 @@ def _guardar_en_historial(resultado: str):
     })
 
 
+@app.route('/')
+def servir_index():
+    return send_from_directory(FRONTEND_DIR, 'index.html')
+
+
+@app.route('/<path:ruta>')
+def servir_static(ruta):
+    ruta_completa = os.path.join(FRONTEND_DIR, ruta)
+    if os.path.isfile(ruta_completa):
+        return send_from_directory(FRONTEND_DIR, ruta)
+    return jsonify({'error': 'No encontrado'}), 404
+
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    en_produccion = os.environ.get('FLASK_ENV') == 'production'
+    app.run(debug=not en_produccion, host='0.0.0.0', port=5000)

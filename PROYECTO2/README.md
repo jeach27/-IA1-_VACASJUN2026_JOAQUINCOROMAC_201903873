@@ -41,6 +41,15 @@ python app.py
 # Abrir frontend/index.html en el navegador
 ```
 
+## Ejecucion con Docker
+
+```bash
+cd PROYECTO2
+docker compose up --build
+```
+
+Abrir en el navegador: `http://localhost:5000`
+
 ## Estructura del Proyecto
 
 ```

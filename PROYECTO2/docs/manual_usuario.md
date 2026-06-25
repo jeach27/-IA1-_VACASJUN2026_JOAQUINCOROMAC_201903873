@@ -233,5 +233,46 @@ La tabla al final de la pagina muestra las simulaciones anteriores con:
 **Solucion:**
 ```bash
 pip install --upgrade pip
-pip install pyswip==0.2.10
+pip install pyswip==0.3.3
 ```
+
+---
+
+## 6. Ejecucion con Docker (opcional)
+
+Docker empaqueta Python, SWI-Prolog y la aplicacion en un solo contenedor, eliminando la necesidad de instalar dependencias manualmente.
+
+### Requisitos previos para Docker
+
+- Docker Desktop instalado y en ejecucion
+  - Windows/Mac: descargar desde https://www.docker.com/products/docker-desktop
+  - Linux: instalar Docker Engine y Docker Compose
+
+### Iniciar con Docker Compose
+
+Desde la carpeta `PROYECTO2/`:
+
+```bash
+docker compose up --build
+```
+
+La primera vez descarga la imagen base e instala SWI-Prolog (puede tardar 2-5 minutos). Las siguientes ejecuciones usan la cache y son mas rapidas.
+
+Al finalizar la construccion, el sistema estara disponible en:
+
+- Frontend y API: `http://localhost:5000`
+
+Para detener el sistema:
+
+```bash
+docker compose down
+```
+
+### Diferencias respecto a la ejecucion local
+
+| Aspecto | Local | Docker |
+|---|---|---|
+| Frontend | Abrir index.html en el navegador | Abrir http://localhost:5000 |
+| Backend | python app.py | docker compose up |
+| SWI-Prolog | Instalacion manual requerida | Incluido en el contenedor |
+| Dependencias Python | pip install -r requirements.txt | Incluidas en el contenedor |
