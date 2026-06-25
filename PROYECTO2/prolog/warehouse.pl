@@ -97,45 +97,48 @@ decidir_accion(RobotF, RobotC, no, _, _, _, recoger_paquete) :-
     puede_recoger(RobotF, RobotC, _),
     !.
 
-% Caso 3: Necesita moverse - prioridad fila sobre columna
-% Mover arriba si el destino esta en una fila menor
-decidir_accion(RobotF, RobotC, _, _, DestF, _, mover_arriba) :-
-    RobotF > DestF,
-    puede_mover_arriba(RobotF, RobotC, _, _),
+% Caso 3: Ya esta en el destino -> esperar
+decidir_accion(F, C, _, _, F, C, esperar) :- !.
+
+% Caso 4: Navegar hacia el destino usando BFS para evadir obstaculos
+decidir_accion(RobotF, RobotC, _, _, DestF, DestC, Accion) :-
+    siguiente_movimiento(RobotF, RobotC, DestF, DestC, Accion),
     !.
 
-% Mover abajo si el destino esta en una fila mayor
-decidir_accion(RobotF, RobotC, _, _, DestF, _, mover_abajo) :-
-    RobotF < DestF,
-    puede_mover_abajo(RobotF, RobotC, _, _),
-    !.
-
-% Mover derecha si el destino esta en una columna mayor
-decidir_accion(RobotF, RobotC, _, _, _, DestC, mover_derecha) :-
-    RobotC < DestC,
-    puede_mover_derecha(RobotF, RobotC, _, _),
-    !.
-
-% Mover izquierda si el destino esta en una columna menor
-decidir_accion(RobotF, RobotC, _, _, _, DestC, mover_izquierda) :-
-    RobotC > DestC,
-    puede_mover_izquierda(RobotF, RobotC, _, _),
-    !.
-
-% Caso alternativo: obstaculo en la direccion preferida, intentar otro eje
-% Si no puede ir en la fila correcta, intenta columna
-decidir_accion(RobotF, RobotC, _, _, _, DestC, mover_derecha) :-
-    RobotC < DestC,
-    puede_mover_derecha(RobotF, RobotC, _, _),
-    !.
-
-decidir_accion(RobotF, RobotC, _, _, _, DestC, mover_izquierda) :-
-    RobotC > DestC,
-    puede_mover_izquierda(RobotF, RobotC, _, _),
-    !.
-
-% Caso fallback: no puede moverse hacia el destino -> esperar
+% Caso fallback: no hay camino posible -> esperar
 decidir_accion(_, _, _, _, _, _, esperar).
+
+% ---------------------------------------------------------------------------
+% BFS: Busqueda en anchura para encontrar el camino mas corto evitando obstaculos
+% siguiente_movimiento(InicioF, InicioC, DestF, DestC, Accion)
+%   Retorna la primera accion del camino optimo hacia el destino.
+%   Usa BFS para garantizar camino minimo y correcto manejo de obstaculos.
+% ---------------------------------------------------------------------------
+
+siguiente_movimiento(InicioF, InicioC, DestF, DestC, Accion) :-
+    bfs_buscar([[InicioF, InicioC, none]], DestF, DestC, [InicioF-InicioC], Accion).
+
+% BFS: caso base - se llego al destino con una primera accion definida
+bfs_buscar([[DestF, DestC, Accion]|_], DestF, DestC, _, Accion) :-
+    Accion \= none, !.
+
+% BFS: caso recursivo - expandir el nodo actual y encolar vecinos
+bfs_buscar([[F, C, PrimerAccion]|Cola], DestF, DestC, Visitados, Resultado) :-
+    findall([NF, NC, PA], (
+        movimiento_bfs(F, C, NF, NC, Act),
+        \+ member(NF-NC, Visitados),
+        (PrimerAccion = none -> PA = Act ; PA = PrimerAccion)
+    ), Hijos),
+    findall(NF-NC, member([NF, NC, _], Hijos), NuevosVisitados),
+    append(Visitados, NuevosVisitados, TodosVisitados),
+    append(Cola, Hijos, ColaNueva),
+    bfs_buscar(ColaNueva, DestF, DestC, TodosVisitados, Resultado).
+
+% Movimientos validos para la expansion BFS (usa las mismas reglas base)
+movimiento_bfs(F, C, NF, C, mover_arriba)    :- puede_mover_arriba(F, C, NF, C).
+movimiento_bfs(F, C, NF, C, mover_abajo)     :- puede_mover_abajo(F, C, NF, C).
+movimiento_bfs(F, C, F, NC, mover_izquierda) :- puede_mover_izquierda(F, C, F, NC).
+movimiento_bfs(F, C, F, NC, mover_derecha)   :- puede_mover_derecha(F, C, F, NC).
 
 % ---------------------------------------------------------------------------
 % UTILIDADES AUXILIARES

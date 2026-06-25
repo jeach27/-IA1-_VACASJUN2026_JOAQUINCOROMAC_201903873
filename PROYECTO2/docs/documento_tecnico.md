@@ -44,11 +44,11 @@
 
 | Tecnologia | Version | Proposito |
 |---|---|---|
-| SWI-Prolog | 9.x | Motor de inferencia y toma de decisiones de los robots |
-| Python | 3.11+ | Desarrollo del backend, gestion del estado y coordinacion |
-| Flask | 3.0.3 | Framework web para la API REST |
-| flask-cors | 4.0.1 | Manejo de CORS para peticiones desde el frontend |
-| pyswip | 0.2.10 | Integracion entre Python y SWI-Prolog |
+| SWI-Prolog | 10.0.2 | Motor de inferencia y toma de decisiones de los robots |
+| Python | 3.13+ | Desarrollo del backend, gestion del estado y coordinacion |
+| Flask | 3.1.3 | Framework web para la API REST |
+| flask-cors | 6.0.5 | Manejo de CORS para peticiones desde el frontend |
+| pyswip | 0.3.3 | Integracion entre Python y SWI-Prolog |
 | HTML5 | - | Estructura de la interfaz web |
 | CSS3 | - | Estilos y visualizacion del mapa |
 | JavaScript (ES2020) | - | Logica del cliente, renderizado y comunicacion con el backend |
@@ -187,7 +187,7 @@ true.
 
 ### Regla 7: decidir_accion/7
 
-**Descripcion:** Regla principal de decision. Determina la accion a ejecutar segun el estado actual del robot. Evalua en orden de prioridad: entregar, recoger, moverse hacia el destino. Usa corte (!) en cada caso para evitar multiples soluciones y garantizar una decision unica.
+**Descripcion:** Regla principal de decision. Determina la accion a ejecutar segun el estado actual del robot. Evalua en orden de prioridad: (1) entregar si ya esta en la zona correcta, (2) recoger si hay un paquete en su posicion, (3) navegar hacia el destino usando BFS (Regla 8). Usa corte (!) en cada caso para garantizar una decision unica.
 
 ```prolog
 decidir_accion(RobotF, RobotC, LlevaPaquete, PaqueteID, DestF, DestC, Accion)
@@ -216,7 +216,42 @@ Accion = entregar_paquete.
 
 ---
 
-### Regla 8: zona_de_paquete/4 y utilidades
+### Regla 8: BFS para navegacion optima (siguiente_movimiento/5 y bfs_buscar/5)
+
+**Descripcion:** Busqueda en anchura (BFS) que encuentra el camino mas corto desde la posicion actual hasta el destino, evitando obstaculos. Retorna la primera accion del camino optimo. Garantiza que el robot nunca quede bloqueado mientras exista un camino.
+
+```prolog
+% Punto de entrada del BFS
+siguiente_movimiento(InicioF, InicioC, DestF, DestC, Accion) :-
+    bfs_buscar([[InicioF, InicioC, none]], DestF, DestC, [InicioF-InicioC], Accion).
+
+% Caso base: se llego al destino
+bfs_buscar([[DestF, DestC, Accion]|_], DestF, DestC, _, Accion) :-
+    Accion \= none, !.
+
+% Caso recursivo: expandir nodos
+bfs_buscar([[F, C, PrimerAccion]|Cola], DestF, DestC, Visitados, Resultado) :-
+    findall([NF, NC, PA], (
+        movimiento_bfs(F, C, NF, NC, Act),
+        \+ member(NF-NC, Visitados),
+        (PrimerAccion = none -> PA = Act ; PA = PrimerAccion)
+    ), Hijos),
+    findall(NF-NC, member([NF, NC, _], Hijos), NuevosVisitados),
+    append(Visitados, NuevosVisitados, TodosVisitados),
+    append(Cola, Hijos, ColaNueva),
+    bfs_buscar(ColaNueva, DestF, DestC, TodosVisitados, Resultado).
+```
+
+**Consulta de ejemplo:**
+```prolog
+% Robot en (5,9) hacia (5,2): hay obstaculo en (5,8), BFS rodea por arriba
+?- siguiente_movimiento(5, 9, 5, 2, Accion).
+Accion = mover_arriba.
+```
+
+---
+
+### Regla 9: zona_de_paquete/4 y utilidades
 
 **Descripcion:** Consulta la zona de entrega asociada a un paquete. Utiliza encadenamiento de hechos `paquete/4` y `zona_entrega/3`.
 

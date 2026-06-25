@@ -31,6 +31,16 @@ class PrologInterface:
             return str(accion)
         return 'esperar'
 
+    def siguiente_movimiento(self, robot_f: int, robot_c: int,
+                             dest_f: int, dest_c: int) -> str:
+        """Consulta directamente el BFS de Prolog para navegar sin recoger."""
+        query = f"siguiente_movimiento({robot_f}, {robot_c}, {dest_f}, {dest_c}, Accion)"
+        resultados = self.consultar(query)
+        if resultados:
+            accion = resultados[0].get('Accion', 'esperar')
+            return str(accion)
+        return 'esperar'
+
     def puede_recoger(self, robot_f: int, robot_c: int) -> str | None:
         query = f"puede_recoger({robot_f}, {robot_c}, PaqueteID)"
         resultados = self.consultar(query)

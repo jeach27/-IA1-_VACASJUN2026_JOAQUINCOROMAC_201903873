@@ -86,7 +86,6 @@ def aplicar_accion(robot: dict, accion: str, paquetes: list) -> dict:
 
     if accion == 'mover_arriba':
         robot['fila'] -= 1
-        robot['columna'] = robot['columna']
 
     elif accion == 'mover_abajo':
         robot['fila'] += 1
@@ -165,6 +164,18 @@ def ejecutar_paso():
             lleva, pid,
             dest_f, dest_c
         )
+
+        # Prolog usa hechos estaticos para recoger_paquete; verificar contra estado real
+        if accion == 'recoger_paquete':
+            paquete_disponible = any(
+                p['fila'] == robot['fila'] and p['columna'] == robot['columna']
+                and not p['recogido'] and not p['entregado']
+                for p in estado_simulacion['paquetes']
+            )
+            if not paquete_disponible:
+                accion = prolog.siguiente_movimiento(
+                    robot['fila'], robot['columna'], dest_f, dest_c
+                )
 
         log = aplicar_accion(robot, accion, estado_simulacion['paquetes'])
         acciones_ejecutadas.append(log)
