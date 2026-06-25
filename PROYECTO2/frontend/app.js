@@ -192,19 +192,48 @@ async function reiniciarSimulacion() {
     }
 }
 
-function cambiarModo(modo) {
+async function cambiarModo(modo) {
     modoSimulacion = modo;
     const btnPaso = document.getElementById('btn-paso');
     const btnPausar = document.getElementById('btn-pausar');
 
     if (modo === 'paso_a_paso') {
         detenerAutomatico();
-        btnPaso.disabled = !estadoActual || !estadoActual.activa;
         btnPausar.disabled = true;
+        btnPausar.textContent = 'Pausar';
+
+        // Si la simulacion estaba pausada en automatico, despausar para que
+        // paso a paso pueda ejecutar; el backend rechaza pasos cuando pausada=true
+        if (estadoActual && estadoActual.pausada) {
+            try {
+                const resp = await fetch(`${API}/simulacion/pausar`, { method: 'POST' });
+                const data = await resp.json();
+                estadoActual.pausada = data.pausado;
+            } catch (e) {}
+        }
+
+        const simulacionActiva = estadoActual && estadoActual.activa && !estadoActual.completada;
+        btnPaso.disabled = !simulacionActiva;
+
     } else {
+        // modo automatico
         btnPaso.disabled = true;
-        if (estadoActual && estadoActual.activa) {
+
+        const simulacionActiva = estadoActual && estadoActual.activa && !estadoActual.completada;
+        if (simulacionActiva) {
             btnPausar.disabled = false;
+            btnPausar.textContent = 'Pausar';
+
+            // Si por algun motivo el backend quedara pausado al entrar en automatico,
+            // sincronizar para que el loop pueda ejecutar pasos
+            if (estadoActual.pausada) {
+                try {
+                    const resp = await fetch(`${API}/simulacion/pausar`, { method: 'POST' });
+                    const data = await resp.json();
+                    estadoActual.pausada = data.pausado;
+                } catch (e) {}
+            }
+
             iniciarAutomatico();
         }
     }
