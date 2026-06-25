@@ -347,6 +347,26 @@ button#btn-reiniciar:hover:not(:disabled) {
     padding: 12px 16px;
 }
 
+.historial-encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.historial-encabezado h2 {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+#btn-reporte {
+    background-color: #1a3a00;
+    border-color: #4a8a00;
+    font-size: 0.75rem;
+    padding: 5px 12px;
+}
+
 .tabla-historial {
     width: 100%;
     border-collapse: collapse;

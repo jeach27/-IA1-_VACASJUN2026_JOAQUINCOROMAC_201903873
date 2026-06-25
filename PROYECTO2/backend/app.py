@@ -1,10 +1,15 @@
-import json
+import io
 import time
 import uuid
 from datetime import datetime
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import cm
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 
 from prolog_interface import PrologInterface
 
@@ -297,6 +302,134 @@ def obtener_mapa_inicial():
         'robots': [{'id': 'r1', 'fila': 1, 'columna': 1}]
     }
     return jsonify(data)
+
+
+@app.route('/api/reporte', methods=['GET'])
+def generar_reporte():
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4,
+                            leftMargin=2*cm, rightMargin=2*cm,
+                            topMargin=2*cm, bottomMargin=2*cm)
+
+    estilos = getSampleStyleSheet()
+    titulo_style = ParagraphStyle('titulo', parent=estilos['Title'],
+                                  fontSize=18, spaceAfter=6)
+    sub_style   = ParagraphStyle('sub', parent=estilos['Heading2'],
+                                  fontSize=12, spaceAfter=4, textColor=colors.HexColor('#1a5276'))
+    normal      = estilos['Normal']
+    fecha_str   = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+
+    elementos = []
+
+    # Encabezado
+    elementos.append(Paragraph('Smart Warehouse', titulo_style))
+    elementos.append(Paragraph('Reporte de Simulacion', estilos['Heading2']))
+    elementos.append(Paragraph(f'Generado el: {fecha_str}', normal))
+    elementos.append(HRFlowable(width='100%', thickness=1, color=colors.grey))
+    elementos.append(Spacer(1, 0.4*cm))
+
+    # Configuracion actual
+    elementos.append(Paragraph('Configuracion Activa', sub_style))
+    dim = prolog.obtener_dimension()
+    obs = prolog.obtener_obstaculos()
+    zonas = prolog.obtener_zonas_entrega()
+    paquetes_prolog = prolog.obtener_todos_los_paquetes()
+    conf_data = [
+        ['Parametro', 'Valor'],
+        ['Nivel de dificultad', dificultad_actual.upper()],
+        ['Dimension del mapa', f"{dim['filas']} x {dim['columnas']}"],
+        ['Total de obstaculos', str(len(obs))],
+        ['Total de paquetes', str(len(paquetes_prolog))],
+        ['Zonas de entrega', str(len(zonas))],
+    ]
+    t_conf = Table(conf_data, colWidths=[8*cm, 8*cm])
+    t_conf.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0f3460')),
+        ('TEXTCOLOR',  (0, 0), (-1, 0), colors.white),
+        ('FONTNAME',   (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('GRID',       (0, 0), (-1, -1), 0.5, colors.grey),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.white]),
+        ('FONTSIZE',   (0, 0), (-1, -1), 10),
+        ('PADDING',    (0, 0), (-1, -1), 6),
+    ]))
+    elementos.append(t_conf)
+    elementos.append(Spacer(1, 0.5*cm))
+
+    # Estadisticas de la simulacion actual
+    elementos.append(Paragraph('Estadisticas de la Simulacion Actual', sub_style))
+    if estado_simulacion:
+        inicio = estado_simulacion.get('inicio')
+        tiempo = round(time.time() - inicio, 1) if inicio else 0
+        movs   = estado_simulacion.get('movimientos', 0)
+        entrs  = estado_simulacion.get('entregas', 0)
+        total  = len(estado_simulacion.get('paquetes', []))
+        efic   = round((entrs / movs) * 100, 2) if movs > 0 else 0
+        estado_txt = 'Completada' if estado_simulacion.get('completada') else \
+                     ('Pausada' if estado_simulacion.get('pausada') else 'En curso')
+        stats_data = [
+            ['Metrica', 'Valor'],
+            ['Estado',          estado_txt],
+            ['Movimientos',     str(movs)],
+            ['Paquetes entregados', f'{entrs} / {total}'],
+            ['Paquetes pendientes', str(total - entrs)],
+            ['Tiempo transcurrido', f'{tiempo} s'],
+            ['Eficiencia',      f'{efic} %'],
+        ]
+    else:
+        stats_data = [['Metrica', 'Valor'], ['Estado', 'Sin simulacion activa']]
+
+    t_stats = Table(stats_data, colWidths=[8*cm, 8*cm])
+    t_stats.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0f3460')),
+        ('TEXTCOLOR',  (0, 0), (-1, 0), colors.white),
+        ('FONTNAME',   (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('GRID',       (0, 0), (-1, -1), 0.5, colors.grey),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.white]),
+        ('FONTSIZE',   (0, 0), (-1, -1), 10),
+        ('PADDING',    (0, 0), (-1, -1), 6),
+    ]))
+    elementos.append(t_stats)
+    elementos.append(Spacer(1, 0.5*cm))
+
+    # Historial de simulaciones
+    elementos.append(Paragraph('Historial de Simulaciones', sub_style))
+    if historial_simulaciones:
+        hist_data = [['ID', 'Fecha', 'Dificultad', 'Movs', 'Entregas', 'Tiempo (s)', 'Resultado']]
+        for sim in reversed(historial_simulaciones):
+            hist_data.append([
+                sim['id'][:8] + '...',
+                sim['fecha'],
+                sim.get('dificultad', 'medio'),
+                str(sim['movimientos']),
+                str(sim['entregas']),
+                str(sim['tiempo_segundos']),
+                sim['resultado'],
+            ])
+        col_widths = [2.5*cm, 4*cm, 2.5*cm, 1.8*cm, 2*cm, 2.2*cm, 2.5*cm]
+        t_hist = Table(hist_data, colWidths=col_widths)
+        t_hist.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0f3460')),
+            ('TEXTCOLOR',  (0, 0), (-1, 0), colors.white),
+            ('FONTNAME',   (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID',       (0, 0), (-1, -1), 0.5, colors.grey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.white]),
+            ('FONTSIZE',   (0, 0), (-1, -1), 8),
+            ('PADDING',    (0, 0), (-1, -1), 4),
+        ]))
+        elementos.append(t_hist)
+    else:
+        elementos.append(Paragraph('Sin simulaciones registradas en el historial.', normal))
+
+    elementos.append(Spacer(1, 0.5*cm))
+    elementos.append(HRFlowable(width='100%', thickness=0.5, color=colors.grey))
+    elementos.append(Paragraph(
+        'Smart Warehouse - Inteligencia Artificial 1 - USAC', normal))
+
+    doc.build(elementos)
+    buffer.seek(0)
+    nombre = f"reporte_smart_warehouse_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    return send_file(buffer, mimetype='application/pdf',
+                     as_attachment=True, download_name=nombre)
 
 
 # ---------------------------------------------------------------------------

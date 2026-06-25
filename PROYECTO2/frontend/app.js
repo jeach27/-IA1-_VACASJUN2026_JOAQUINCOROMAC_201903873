@@ -411,6 +411,38 @@ async function cargarHistorial() {
 }
 
 // ---------------------------------------------------------------------------
+// Reporte PDF
+// ---------------------------------------------------------------------------
+
+async function descargarReporte() {
+    const btn = document.getElementById('btn-reporte');
+    btn.disabled = true;
+    btn.textContent = 'Generando...';
+    try {
+        const resp = await fetch(`${API}/reporte`);
+        if (!resp.ok) {
+            mostrarMensaje('Error al generar el reporte.');
+            return;
+        }
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reporte_smart_warehouse_${Date.now()}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        mostrarMensaje('Reporte descargado correctamente.');
+    } catch (e) {
+        mostrarMensaje('Error al descargar el reporte.');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Descargar Reporte PDF';
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Mensaje de estado
 // ---------------------------------------------------------------------------
 
