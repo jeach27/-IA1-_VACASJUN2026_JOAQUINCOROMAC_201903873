@@ -10,9 +10,44 @@ let pasoEnCurso = false;
 // ---------------------------------------------------------------------------
 
 window.addEventListener('load', async () => {
+    await cargarDificultadActual();
     await cargarMapaInicial();
     await cargarHistorial();
 });
+
+async function cargarDificultadActual() {
+    try {
+        const resp = await fetch(`${API}/dificultad`);
+        const data = await resp.json();
+        const radio = document.querySelector(`input[name="dificultad"][value="${data.actual}"]`);
+        if (radio) radio.checked = true;
+    } catch (e) {}
+}
+
+async function cambiarDificultad(nivel) {
+    if (estadoActual && estadoActual.activa) {
+        mostrarMensaje('Detiene la simulacion antes de cambiar la dificultad.');
+        const radio = document.querySelector(`input[name="dificultad"][value="${estadoActual._dificultad || 'medio'}"]`);
+        if (radio) radio.checked = true;
+        return;
+    }
+    try {
+        const resp = await fetch(`${API}/dificultad`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nivel })
+        });
+        if (!resp.ok) {
+            const err = await resp.json();
+            mostrarMensaje(err.error || 'Error al cambiar dificultad.');
+            return;
+        }
+        mostrarMensaje(`Dificultad cambiada a: ${nivel.toUpperCase()}`);
+        await cargarMapaInicial();
+    } catch (e) {
+        mostrarMensaje('Error al cambiar la dificultad.');
+    }
+}
 
 async function cargarMapaInicial() {
     try {
@@ -324,16 +359,18 @@ async function cargarHistorial() {
         tbody.innerHTML = '';
 
         if (lista.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="sin-datos">Sin simulaciones registradas</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="sin-datos">Sin simulaciones registradas</td></tr>';
             return;
         }
 
         for (const sim of lista.reverse()) {
             const tr = document.createElement('tr');
             const claseResultado = sim.resultado === 'completada' ? 'resultado-completada' : 'resultado-cancelada';
+            const claseDif = `dif-${sim.dificultad || 'medio'}`;
             tr.innerHTML = `
                 <td>${sim.id.substring(0, 8)}...</td>
                 <td>${sim.fecha}</td>
+                <td class="${claseDif}">${sim.dificultad || 'medio'}</td>
                 <td>${sim.movimientos}</td>
                 <td>${sim.entregas}</td>
                 <td>${sim.tiempo_segundos}</td>

@@ -14,26 +14,43 @@
 
     <main>
         <section class="panel-controles">
-            <div class="grupo-botones">
-                <button id="btn-iniciar" onclick="iniciarSimulacion()">Iniciar</button>
-                <button id="btn-paso" onclick="ejecutarPaso()" disabled>Paso a Paso</button>
-                <button id="btn-pausar" onclick="pausarSimulacion()" disabled>Pausar</button>
-                <button id="btn-reiniciar" onclick="reiniciarSimulacion()" disabled>Reiniciar</button>
+            <div class="grupo-dificultad">
+                <label>Dificultad:</label>
+                <label>
+                    <input type="radio" name="dificultad" value="facil" onchange="cambiarDificultad('facil')">
+                    Facil
+                </label>
+                <label>
+                    <input type="radio" name="dificultad" value="medio" checked onchange="cambiarDificultad('medio')">
+                    Medio
+                </label>
+                <label>
+                    <input type="radio" name="dificultad" value="dificil" onchange="cambiarDificultad('dificil')">
+                    Dificil
+                </label>
             </div>
-            <div class="grupo-modo">
-                <label>Modo:</label>
-                <label>
-                    <input type="radio" name="modo" value="automatico" checked onchange="cambiarModo('automatico')">
-                    Automatico
-                </label>
-                <label>
-                    <input type="radio" name="modo" value="paso_a_paso" onchange="cambiarModo('paso_a_paso')">
-                    Paso a Paso
-                </label>
-                <label class="velocidad-label">
-                    Velocidad (ms):
-                    <input type="number" id="velocidad" value="600" min="100" max="3000" step="100">
-                </label>
+            <div class="fila-controles">
+                <div class="grupo-botones">
+                    <button id="btn-iniciar" onclick="iniciarSimulacion()">Iniciar</button>
+                    <button id="btn-paso" onclick="ejecutarPaso()" disabled>Paso a Paso</button>
+                    <button id="btn-pausar" onclick="pausarSimulacion()" disabled>Pausar</button>
+                    <button id="btn-reiniciar" onclick="reiniciarSimulacion()" disabled>Reiniciar</button>
+                </div>
+                <div class="grupo-modo">
+                    <label>Modo:</label>
+                    <label>
+                        <input type="radio" name="modo" value="automatico" checked onchange="cambiarModo('automatico')">
+                        Automatico
+                    </label>
+                    <label>
+                        <input type="radio" name="modo" value="paso_a_paso" onchange="cambiarModo('paso_a_paso')">
+                        Paso a Paso
+                    </label>
+                    <label class="velocidad-label">
+                        Velocidad (ms):
+                        <input type="number" id="velocidad" value="600" min="100" max="3000" step="100">
+                    </label>
+                </div>
             </div>
         </section>
 
@@ -97,6 +114,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Fecha</th>
+                        <th>Dificultad</th>
                         <th>Movimientos</th>
                         <th>Entregas</th>
                         <th>Tiempo (s)</th>
@@ -105,7 +123,7 @@
                 </thead>
                 <tbody id="historial-body">
                     <tr>
-                        <td colspan="6" class="sin-datos">Sin simulaciones registradas</td>
+                        <td colspan="7" class="sin-datos">Sin simulaciones registradas</td>
                     </tr>
                 </tbody>
             </table>

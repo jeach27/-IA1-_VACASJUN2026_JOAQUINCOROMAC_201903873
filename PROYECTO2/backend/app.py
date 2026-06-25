@@ -19,6 +19,7 @@ prolog = PrologInterface()
 
 estado_simulacion = {}
 historial_simulaciones = []
+dificultad_actual = 'medio'
 
 
 def estado_inicial():
@@ -126,6 +127,38 @@ def aplicar_accion(robot: dict, accion: str, paquetes: list) -> dict:
 # ---------------------------------------------------------------------------
 # ENDPOINTS
 # ---------------------------------------------------------------------------
+
+@app.route('/api/dificultad', methods=['GET'])
+def obtener_dificultad():
+    return jsonify({
+        'actual': dificultad_actual,
+        'disponibles': prolog.obtener_dificultades()
+    })
+
+
+@app.route('/api/dificultad', methods=['POST'])
+def cambiar_dificultad():
+    global dificultad_actual, estado_simulacion
+    data = request.get_json(force=True)
+    nivel = data.get('nivel', '')
+    if nivel not in prolog.obtener_dificultades():
+        return jsonify({'error': 'Nivel no valido. Use: facil, medio, dificil'}), 400
+    if estado_simulacion.get('activa'):
+        return jsonify({'error': 'No se puede cambiar la dificultad con una simulacion activa'}), 400
+    ok = prolog.cargar_dificultad(nivel)
+    if not ok:
+        return jsonify({'error': 'Error al cargar la dificultad'}), 500
+    dificultad_actual = nivel
+    estado_simulacion = {}
+    return jsonify({'nivel': nivel, 'mapa': {
+        'dimension': prolog.obtener_dimension(),
+        'obstaculos': prolog.obtener_obstaculos(),
+        'paquetes': prolog.obtener_todos_los_paquetes(),
+        'zonas_entrega': prolog.obtener_zonas_entrega(),
+        'robots': [{'id': r[0], 'fila': r[2], 'columna': r[3]}
+                   for r in []]
+    }})
+
 
 @app.route('/api/simulacion/iniciar', methods=['POST'])
 def iniciar_simulacion():
@@ -295,7 +328,8 @@ def _guardar_en_historial(resultado: str):
         'movimientos': estado_simulacion.get('movimientos', 0),
         'entregas': estado_simulacion.get('entregas', 0),
         'tiempo_segundos': tiempo,
-        'resultado': resultado
+        'resultado': resultado,
+        'dificultad': dificultad_actual
     })
 
 

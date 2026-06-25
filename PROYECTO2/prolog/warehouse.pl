@@ -2,7 +2,19 @@
 % Inteligencia Artificial 1 - USAC
 
 % ---------------------------------------------------------------------------
-% HECHOS: Mapa 10x10
+% Declaraciones dinamicas: los hechos del mapa se pueden modificar en tiempo
+% de ejecucion (retractall/assertz) para soportar distintos niveles de dificultad
+% ---------------------------------------------------------------------------
+
+:- dynamic dimension/2.
+:- dynamic obstaculo/2.
+:- dynamic paquete/4.
+:- dynamic zona_entrega/3.
+:- dynamic robot/3.
+
+% ---------------------------------------------------------------------------
+% HECHOS INICIALES: configuracion por defecto (nivel medio, mapa 10x10)
+% Estos hechos se reemplazan dinamicamente al seleccionar otro nivel.
 % ---------------------------------------------------------------------------
 
 dimension(10, 10).
